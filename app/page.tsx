@@ -57,6 +57,8 @@ interface FollowUp {
   }[];
 }
 export default function Page() {
+  const [isInputPage, setIsInputPage] = useState(true);
+
   // 3. Set up action that will be used to stream all the messages
   const { myAction } = useActions<typeof AI>();
   // 4. Set up form submission handling
@@ -214,6 +216,7 @@ export default function Page() {
                 if (!value) return;
               }}
             >
+            
               <div className="relative flex flex-col w-full overflow-hidden max-h-60 grow dark:bg-slate-800 bg-gray-100 rounded-full sm:border sm:px-2">
                 <Textarea
                   ref={inputRef}

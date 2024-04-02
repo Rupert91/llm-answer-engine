@@ -45,6 +45,28 @@ interface SearchResult {
 interface ContentResult extends SearchResult {
   html: string;
 }
+//* 
+async function parseUserQuery(message: string): Promise<string> {
+  try {
+    const response = await openai.completions.create({
+      model: "text-davinci-002", // 根据需要选择适合的模型
+      prompt: `Please extract the most relevant keywords from the following user query:\n\n"${message}"`,
+      temperature: 0.3,
+      max_tokens: 60,
+      top_p: 1.0,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+    });
+
+    // 直接从response中访问choices
+    const keywords = response.choices[0].text.trim();
+    return keywords; // 返回处理后的查询关键词或短语
+  } catch (error) {
+    console.error("Error parsing user query with OpenAI:", error);
+    throw error;
+  }
+}
+
 // 4. Fetch search results from Brave Search API
 async function getSources(message: string, numberOfPagesToScan = config.numberOfPagesToScan): Promise<SearchResult[]> {
   try {
@@ -272,9 +294,10 @@ async function myAction(userMessage: string): Promise<any> {
   "use server";
   const streamable = createStreamableValue({});
   (async () => {
+    const processedQuery = await parseUserQuery(userMessage);
     const [images, sources, videos] = await Promise.all([
       getImages(userMessage),
-      getSources(userMessage),
+      getSources(processedQuery),
       getVideos(userMessage),
     ]);
     streamable.update({ 'searchResults': sources });
