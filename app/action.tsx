@@ -48,21 +48,25 @@ interface ContentResult extends SearchResult {
 //* 
 async function parseUserQuery(message: string): Promise<string> {
   try {
-    const response = await openai.completions.create({
-      model: "text-davinci-002", // 根据需要选择适合的模型
-      prompt: `Please extract the most relevant keywords from the following user query:\n\n"${message}"`,
-      temperature: 0.3,
-      max_tokens: 60,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
+    const response = await openai.chat.completions.create({
+      model: config.inferenceModel, 
+      messages: [
+        {
+          role: "system",
+          content: "Given a user query, extract and list all relevant keywords that are best suited for performing a deep search. The keywords should be comprehensive and directly related to the user's intent. Please format the keywords as a comma-separated list."
+        },
+        {
+          role: "user",
+          content: message,
+        }
+      ],
     });
 
-    // 直接从response中访问choices
-    const keywords = response.choices[0].text.trim();
-    return keywords; // 返回处理后的查询关键词或短语
+    // 假设模型返回的文本是你需要的关键词列表
+    const keywords = response.choices?.[0]?.message?.content?.trim() ?? "No keywords found";
+    return keywords;
   } catch (error) {
-    console.error("Error parsing user query with OpenAI:", error);
+    console.error("Error extracting keywords with OpenAI:", error);
     throw error;
   }
 }
