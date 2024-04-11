@@ -337,7 +337,7 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
 //   });
 // };
 
-const sortAndFilterResults = async (sources: SearchResult[], numResults: number): Promise<FinalResult[]> => {
+const sortAndFilterResults = async (sources: SearchResult[]): Promise<FinalResult[]> => {
   try {
     const response = await openai.chat.completions.create({
       model: config.inferenceModel,
@@ -424,6 +424,8 @@ async function myAction(userMessage: string): Promise<any> {
   (async () => {
     const processedQuery = await parseUserQuery(userMessage);
     const numResults = processedQuery.numResults; // 从processedQuery中获取numResults
+    // 立即更新 streamable 以包含 numResults
+    streamable.update({ 'numResults': numResults });    
     const [images, sources, videos] = await Promise.all([
       getImages(userMessage),
       getSources(processedQuery),
@@ -451,8 +453,8 @@ async function myAction(userMessage: string): Promise<any> {
       }
     }
     if (!config.useOllamaInference) {
-      const recommendedResults = await sortAndFilterResults(sources, numResults); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在recommendedResults中
-      streamable.update({ 'recommendedResults': recommendedResults }); // 更新字段名称为recommendedResults
+      const FinalResult = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在recommendedResults中
+      streamable.update({ 'FinalResult': FinalResult }); 
     }
 
     streamable.done({ status: 'done' });
