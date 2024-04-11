@@ -53,7 +53,7 @@ interface ParsedQuery {
 };
 
 // 定义FinalResult类型
-interface FinalResult {
+interface finalResults {
   title: string;
   link: string;
   snippet: string;
@@ -337,7 +337,7 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
 //   });
 // };
 
-const sortAndFilterResults = async (sources: SearchResult[]): Promise<FinalResult[]> => {
+const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResults[]> => {
   try {
     const response = await openai.chat.completions.create({
       model: config.inferenceModel,
@@ -454,8 +454,8 @@ async function myAction(userMessage: string): Promise<any> {
       }
     }
     if (!config.useOllamaInference) {
-      const FinalResult = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在recommendedResults中
-      streamable.update({ 'FinalResult': FinalResult }); 
+      const finalResults = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在recommendedResults中
+      streamable.update({ 'finalResults': finalResults }); 
     }
 
     streamable.done({ status: 'done' });
