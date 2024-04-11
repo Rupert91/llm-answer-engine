@@ -1,5 +1,6 @@
 // 1. Import dependencies
-import 'server-only';
+'use action';
+
 import { createAI, createStreamableValue } from 'ai/rsc';
 import { OpenAI } from 'openai';
 import cheerio from 'cheerio';
@@ -45,36 +46,78 @@ interface SearchResult {
 interface ContentResult extends SearchResult {
   html: string;
 }
+interface ParsedQuery {
+  topic: string;
+  mediaType: string;
+  numResults: number;
+};
+
+// 定义FinalResult类型
+interface FinalResult {
+  title: string;
+  link: string;
+  snippet: string;
+  position: number;
+};
+
 //* 
-async function parseUserQuery(message: string): Promise<string> {
+async function parseUserQuery(message: string): Promise<ParsedQuery> {
   try {
     const response = await openai.chat.completions.create({
-      model: config.inferenceModel, 
+      model: config.inferenceModel,
       messages: [
         {
           role: "system",
-          content: "Given a user query, extract and list all relevant keywords that are best suited for performing a deep search. The keywords should be comprehensive and directly related to the user's intent. Please format the keywords as a comma-separated list."
+          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results. Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
         },
         {
           role: "user",
-          content: message,
+          content: message
         }
       ],
     });
 
-    // 假设模型返回的文本是你需要的关键词列表
-    const keywords = response.choices?.[0]?.message?.content?.trim() ?? "No keywords found";
-    return keywords;
+    // 解析模型的响应
+    const jsonString = response.choices?.[0]?.message?.content?.trim();
+    if (!jsonString) {
+      throw new Error("No response from OpenAI");
+    }
+
+    // 尝试解析响应字符串为JSON
+    let jsonResponse;
+    try {
+      jsonResponse = JSON.parse(jsonString);
+    } catch (parseError) {
+      console.error('Error parsing JSON response:', parseError);
+      throw new Error("Failed to parse JSON response from OpenAI");
+    }
+
+    // 验证解析后的对象是否包含必要的字段
+    if (typeof jsonResponse.topic !== 'string' ||
+        typeof jsonResponse.mediaType !== 'string' ||
+        typeof jsonResponse.numResults !== 'number') {
+      throw new Error("API response format is invalid or missing required fields");
+    }
+
+    // 构建并返回ParsedQuery对象
+    const pQuery: ParsedQuery = {
+      topic: jsonResponse.topic,
+      mediaType: jsonResponse.mediaType,
+      numResults: jsonResponse.numResults
+    };
+
+    return pQuery;
   } catch (error) {
-    console.error("Error extracting keywords with OpenAI:", error);
+    console.error('Error parsing user query:', error);
     throw error;
   }
 }
 
+
 // 4. Fetch search results from Brave Search API
-async function getSources(message: string, numberOfPagesToScan = config.numberOfPagesToScan): Promise<SearchResult[]> {
+async function getSources(Pquery: ParsedQuery, numberOfPagesToScan = config.numberOfPagesToScan): Promise<SearchResult[]> {
   try {
-    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(message)}&count=${numberOfPagesToScan}`, {
+    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(Pquery.topic)}&count=${numberOfPagesToScan}`, {
       headers: {
         'Accept': 'application/json',
         'Accept-Encoding': 'gzip',
@@ -266,39 +309,121 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
   }
 }
 // 9. Generate follow-up questions using OpenAI API
-const relevantQuestions = async (sources: SearchResult[]): Promise<any> => {
-  return await openai.chat.completions.create({
-    messages: [
-      {
-        role: "system",
-        content: `
-          You are a Question generator who generates an array of 3 follow-up questions in JSON format.
-          The JSON schema should include:
-          {
-            "original": "The original search query or context",
-            "followUp": [
-              "Question 1",
-              "Question 2", 
-              "Question 3"
-            ]
-          }
+// const relevantQuestions = async (sources: SearchResult[]): Promise<any> => {
+//   return await openai.chat.completions.create({
+//     messages: [
+//       {
+//         role: "system",
+//         content: `
+//           You are a Question generator who generates an array of 3 follow-up questions in JSON format.
+//           The JSON schema should include:
+//           {
+//             "original": "The original search query or context",
+//             "followUp": [
+//               "Question 1",
+//               "Question 2", 
+//               "Question 3"
+//             ]
+//           }
+//           `,
+//       },
+//       {
+//         role: "user",
+//         content: `Generate follow-up questions based on the top results from a similarity search: ${JSON.stringify(sources)}. The original search query is: "The original search query".`,
+//       },
+//     ],
+//     model: config.inferenceModel,
+//     response_format: { type: "json_object" },
+//   });
+// };
+
+const sortAndFilterResults = async (sources: SearchResult[], numResults: number): Promise<FinalResult[]> => {
+  try {
+    const response = await openai.chat.completions.create({
+      model: config.inferenceModel,
+      messages: [
+        {
+          role: "system",
+          content: `
+          You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
+
+          After analyzing the given search results, which include details such as titles, snippets, and links, output a JSON array named 'finalResults'. This array should list the results in order of their relevance and usefulness, from most to least recommended.
+          
+          Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
+          
+          For clarity, here is an example of what an item in 'finalResults' might look like:
+          [
+            {
+              "position": 1,
+              "title": "Example Title 1",
+              "link": "http://example.com/1",
+              "snippet": "This is an example snippet from the first result.",
+            },
+            {
+              "position": 2,
+              "title": "Example Title 2",
+              "link": "http://example.com/2",
+              "snippet": "This is an example snippet from the second result.",
+            },
+            // More results...
+          ]
+          
+          Your primary goal is to ensure that the results are meticulously ordered to assist users in finding the most accurate and helpful information quickly. Please proceed with analyzing and ordering the search results accordingly.
           `,
-      },
-      {
-        role: "user",
-        content: `Generate follow-up questions based on the top results from a similarity search: ${JSON.stringify(sources)}. The original search query is: "The original search query".`,
-      },
-    ],
-    model: config.inferenceModel,
-    response_format: { type: "json_object" },
-  });
-};
+        },
+        {
+          role: "user",
+          content: `Here are the search results: ${JSON.stringify(sources)}. The original user query is "{{message}}". Please sort them according to the rules.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    // Return the entire response for external processing
+    const responseString = response.choices?.[0]?.message?.content?.trim();
+    if (!responseString) {
+      throw new Error("No response from OpenAI");
+    }
+  
+    // 尝试解析响应字符串为JSON
+    let parsedResults;
+    try {
+      parsedResults = JSON.parse(responseString);
+    } catch (parseError) {
+      console.error('Error parsing JSON response:', parseError);
+      throw new Error("Failed to parse JSON response from OpenAI");
+    }
+  
+    // 验证解析后的数组是否符合期望的格式
+    if (!Array.isArray(parsedResults) || parsedResults.some(item => 
+        typeof item.title !== 'string' ||
+        typeof item.link !== 'string' ||
+        typeof item.snippet !== 'string' ||
+        typeof item.position !== 'number')) {
+          throw new Error("API response format is invalid or missing required fields");
+        }
+  
+      // 构建并返回finalResults数组，不包含favicon字段
+      const finalResults = parsedResults.map(item => ({
+        title: item.title || "",
+        link: item.link || "",
+        snippet: item.snippet || "",
+        position: item.position
+      }));
+
+      return finalResults;
+    } catch (error) {
+      console.error('Error processing the response:', error);
+      throw error;
+    };
+  }
 // 10. Main action function that orchestrates the entire process
 async function myAction(userMessage: string): Promise<any> {
   "use server";
   const streamable = createStreamableValue({});
   (async () => {
     const processedQuery = await parseUserQuery(userMessage);
+    const numResults = processedQuery.numResults; // 从processedQuery中获取numResults
     const [images, sources, videos] = await Promise.all([
       getImages(userMessage),
       getSources(processedQuery),
@@ -326,9 +451,10 @@ async function myAction(userMessage: string): Promise<any> {
       }
     }
     if (!config.useOllamaInference) {
-      const followUp = await relevantQuestions(sources);
-      streamable.update({ 'followUp': followUp });
+      const recommendedResults = await sortAndFilterResults(sources, numResults); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在recommendedResults中
+      streamable.update({ 'recommendedResults': recommendedResults }); // 更新字段名称为recommendedResults
     }
+
     streamable.done({ status: 'done' });
   })();
   return streamable.value;
