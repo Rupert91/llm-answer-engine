@@ -33,6 +33,7 @@ interface Message {
   isStreaming: boolean;
   searchResults?: SearchResult[];
   numResults:any;
+  processedQuery:any;
 }
 interface StreamMessage {
   searchResults?: any;
@@ -43,6 +44,7 @@ interface StreamMessage {
   videos?: any;
   FinalResult?: any;
   numResults?:any;
+  processedQuery:any;
 }
 interface Image {
   link: string;
@@ -123,6 +125,7 @@ export default function Page() {
       isStreaming: true,
       numResults:'',
       searchResults: [] as SearchResult[],
+      processedQuery:[],
     };
     setMessages(prevMessages => [...prevMessages, newMessage]);
     let lastAppendedResponse = "";
@@ -142,6 +145,9 @@ export default function Page() {
             }
             if (typedMessage.llmResponseEnd) {
               currentMessage.isStreaming = false;
+            }
+            if (typedMessage.numResults) {
+              currentMessage.numResults = typedMessage.numResults;
             }
             if (typedMessage.searchResults) {
               currentMessage.searchResults = typedMessage.searchResults;

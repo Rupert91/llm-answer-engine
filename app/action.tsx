@@ -53,7 +53,7 @@ interface ParsedQuery {
 };
 
 // 定义FinalResult类型
-interface finalResults {
+interface FinalResult {
   title: string;
   link: string;
   snippet: string;
@@ -337,7 +337,7 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
 //   });
 // };
 
-const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResults[]> => {
+const sortAndFilterResults = async (sources: SearchResult[]): Promise<FinalResult[]> => {
   try {
     const response = await openai.chat.completions.create({
       model: config.inferenceModel,
@@ -373,7 +373,7 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResul
         },
         {
           role: "user",
-          content: `Here are the search results: ${JSON.stringify(sources)}. The original user query is "{{message}}". Please sort them according to the rules.`,
+          content: `Here are the search results: ${JSON.stringify(sources)}. The original user query is "{{message}}". Please sort them based on ${JSON.stringify(DocumentInterface)}.`,
         },
       ],
       response_format: { type: "json_object" },
@@ -441,9 +441,9 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${userMessage}", respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `
+          - Here is my query "${processedQuery}", respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `
         },
-        { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
+        { role: "user", content: ` - Here are the results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
@@ -454,8 +454,8 @@ async function myAction(userMessage: string): Promise<any> {
       }
     }
     if (!config.useOllamaInference) {
-      const finalResults = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在recommendedResults中
-      streamable.update({ 'finalResults': finalResults }); 
+      const FinalResult = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在FinalResult中
+      streamable.update({ 'FinalResult': FinalResult }); 
     }
 
     streamable.done({ status: 'done' });
