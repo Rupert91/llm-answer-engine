@@ -441,9 +441,9 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${JSON.stringify(processedQuery)}",print it and read the results list "${JSON.stringify(sources)}",each source's details stored in "${JSON.stringify(html)}" print it and respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found.          You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
+          - Here is my query "${processedQuery}", print it and respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found.          You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
 
-          After analyzing the given sources details, which include details such as titles, snippets, and links, output a JSON array named 'finalResults'. This array should list the results in order of their relevance and usefulness, from most to least recommended.
+          After analyzing the given search results, which include details such as titles, snippets, and links, output a JSON array named 'finalResults'. This array should list the results in order of their relevance and usefulness, from most to least recommended.
           
           Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
           
