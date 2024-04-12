@@ -128,6 +128,7 @@ export default function Page() {
       numResults:'',
       searchResults: [] as SearchResult[],
       processedQuery:[],
+      mediaType: [],
     };
     setMessages(prevMessages => [...prevMessages, newMessage]);
     let lastAppendedResponse = "";
