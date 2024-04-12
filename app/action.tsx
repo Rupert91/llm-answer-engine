@@ -145,7 +145,7 @@ async function getSources(Pquery: ParsedQuery, numberOfPagesToScan = config.numb
 }
 // 5. Fetch contents of top 10 search results
 async function get10BlueLinksContents(sources: SearchResult[]): Promise<ContentResult[]> {
-  async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 800): Promise<Response> {
+  async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 1000): Promise<Response> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -171,7 +171,7 @@ async function get10BlueLinksContents(sources: SearchResult[]): Promise<ContentR
   }
   const promises = sources.map(async (source): Promise<ContentResult | null> => {
     try {
-      const response = await fetchWithTimeout(source.link, {}, 800);
+      const response = await fetchWithTimeout(source.link, {}, 1000);
       if (!response.ok) {
         throw new Error(`Failed to fetch ${source.link}. Status: ${response.status}`);
       }
@@ -442,9 +442,9 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${JSON.stringify(processedQuery)}", print it. `
+          - Here is my query "${JSON.stringify(processedQuery)}", print it. Here is ${JSON.stringify(html)}`
         },
-        { role: "user", content: ` -  ` },
+        { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {

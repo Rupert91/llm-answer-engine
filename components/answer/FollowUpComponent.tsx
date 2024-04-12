@@ -7,6 +7,14 @@ interface FollowUp {
     }[];
 }
 
+// 定义FinalResult类型
+interface FinalResult {
+    title: string;
+    link: string;
+    snippet: string;
+    position: number;
+  };  
+
 // 2. Defines the FollowUpComponent functional component that takes 'followUp' and 'handleFollowUpClick' as props.
 const FollowUpComponent = ({ followUp, handleFollowUpClick }: { followUp: FollowUp; handleFollowUpClick: (question: string) => void }) => {
     const handleQuestionClick = (question: string) => {
