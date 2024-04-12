@@ -425,8 +425,11 @@ async function myAction(userMessage: string): Promise<any> {
     const processedQuery = await parseUserQuery(userMessage);
     const num = processedQuery.numResults; // 从processedQuery中获取numResults
     const numResults = Number(num);
+    const mediaType=processedQuery.mediaType;
 
     streamable.update({ 'numResults': numResults }); 
+    streamable.update({ 'numResults': mediaType }); 
+
     const [images, sources, videos] = await Promise.all([
       getImages(userMessage),
       getSources(processedQuery),
