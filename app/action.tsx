@@ -441,7 +441,7 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${processedQuery}", printed and respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `
+          - Here is my query "${processedQuery}", print it and respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `
         },
         { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
         ], stream: true, model: config.inferenceModel
