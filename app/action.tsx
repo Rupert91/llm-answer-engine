@@ -442,9 +442,9 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${JSON.stringify(processedQuery)}", print it.Here are the top results from a similarity search: ${JSON.stringify(vectorResults)},print them two. `
+          - Here is my query "${JSON.stringify(processedQuery)}", print it.Here are the top results from a similarity search: ${JSON.stringify(html)},print them too. `
         },
-        { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
+        { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(html)}. ` },
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
