@@ -444,32 +444,7 @@ async function myAction(userMessage: string): Promise<any> {
           role: "system", content: `
           - Here is my query "${JSON.stringify(processedQuery)}", print it. `
         },
-        { role: "user", content: ` - You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
-
-        After analyzing the given search results, which include details such as titles, snippets, and links, output a JSON array named 'finalResults'. This array should list the results in order of their relevance and usefulness, from most to least recommended.
-        
-        Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
-        
-        For clarity, here is an example of what an item in 'finalResults' might look like:
-        [
-          {
-            "position": 1,
-            "title": "Example Title 1",
-            "link": "http://example.com/1",
-            "snippet": "This is an example snippet from the first result.",
-          },
-          {
-            "position": 2,
-            "title": "Example Title 2",
-            "link": "http://example.com/2",
-            "snippet": "This is an example snippet from the second result.",
-          },
-          // More results...
-        ]
-        
-        Your primary goal is to ensure that the results are meticulously ordered to assist users in finding the most accurate and helpful information quickly. Please proceed with analyzing and ordering the search results accordingly.
-        
-        Here are the search results : ${JSON.stringify(sources)}. ` },
+        { role: "user", content: ` Here are the search results : ${JSON.stringify(sources)}.print all the sources ` },
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
