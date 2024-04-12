@@ -442,27 +442,29 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${JSON.stringify(processedQuery)}". `
-        },
-        { role: "user", content: ` Here are the search results with the form of an array: ${JSON.stringify(sources)}.Please sort all the sources based on how closely each source's title and snippet match the query. The most relevant sources should appear first.Make sure print all the sorted sources and output a JSON array named 'finalResults'.
-        Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
+          -You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
+          Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
           
-        For clarity, here is an example of what an item in 'finalResults' might look like:
-        [
-          {
-            "position": 1,
-            "title": "Example Title 1",
-            "link": "http://example.com/1",
-            "snippet": "This is an example snippet from the first result.",
-          },
-          {
-            "position": 2,
-            "title": "Example Title 2",
-            "link": "http://example.com/2",
-            "snippet": "This is an example snippet from the second result.",
-          },
-          // More results...
-        ]
+          For clarity, here is an example of what an item in 'finalResults' might look like:
+          [
+            {
+              "position": 1,
+              "title": "Example Title 1",
+              "link": "http://example.com/1",
+              "snippet": "This is an example snippet from the first result.",
+            },
+            {
+              "position": 2,
+              "title": "Example Title 2",
+              "link": "http://example.com/2",
+              "snippet": "This is an example snippet from the second result.",
+            },
+            // More results...
+          ]
+          Here are the search results with the form of an array: ${JSON.stringify(sources)}.`
+        },
+        { role: "user", content: `Here is my query "${JSON.stringify(processedQuery)}". Please sort all the sources based on how closely each source's title and snippet match the query. The most relevant sources should appear first.Make sure print all the sorted sources and output a JSON array named 'finalResults'.
+
       ` },
         ], stream: true, model: config.inferenceModel
     });
