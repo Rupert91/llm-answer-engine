@@ -444,7 +444,7 @@ async function myAction(userMessage: string): Promise<any> {
           role: "system", content: `
           - Here is my query "${JSON.stringify(processedQuery)}", print it. `
         },
-        { role: "user", content: ` Here are the search results : ${JSON.stringify(sources)}.print all the sources ` },
+        { role: "user", content: ` Here are the search results,Please strictly output it in the form of an array: ${JSON.stringify(sources)}.print all the sources.` },
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
@@ -453,10 +453,6 @@ async function myAction(userMessage: string): Promise<any> {
       } else if (chunk.choices[0].finish_reason === "stop") {
         streamable.update({ 'llmResponseEnd': true });
       }
-    }
-    if (!config.useOllamaInference) {
-      const FinalResult = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在FinalResult中
-      streamable.update({ 'FinalResult': FinalResult }); 
     }
 
     streamable.done({ status: 'done' });
