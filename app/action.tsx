@@ -373,7 +373,7 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<FinalResul
         },
         {
           role: "user",
-          content: `Here are the search results: ${JSON.stringify(sources)}. The original user query is "{(message)}". Please sort them according to the rules.`,
+          content: `Here are the search results. The original user query is "{(message)}". Please sort them according to the rules.`,
         },
       ],
       response_format: { type: "json_object" },
@@ -442,9 +442,9 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${JSON.stringify(processedQuery)}", print it. Here is ${JSON.stringify(html)}`
+          - Here is my query "${JSON.stringify(processedQuery)}", print it. `
         },
-        { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
+        { role: "user", content: ` - Here are the search results : ${JSON.stringify(sources)}. ` },
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
