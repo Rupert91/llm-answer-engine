@@ -34,7 +34,6 @@ interface Message {
   searchResults?: SearchResult[];
   numResults:any;
   processedQuery:any;
-  mediaType:any;
 }
 interface StreamMessage {
   searchResults?: any;
@@ -46,7 +45,6 @@ interface StreamMessage {
   FinalResult?: any;
   numResults?:any;
   processedQuery:any;
-  mediaType:any;
 }
 interface Image {
   link: string;
@@ -128,7 +126,6 @@ export default function Page() {
       numResults:'',
       searchResults: [] as SearchResult[],
       processedQuery:[],
-      mediaType: [],
     };
     setMessages(prevMessages => [...prevMessages, newMessage]);
     let lastAppendedResponse = "";
@@ -166,9 +163,6 @@ export default function Page() {
             }
             if (typedMessage.numResults) {
               currentMessage.numResults = typedMessage.numResults;
-            }
-            if (typedMessage.mediaType) {
-              currentMessage.mediaType = typedMessage.mediaType;
             }
           }
           return messagesCopy;
@@ -214,7 +208,6 @@ export default function Page() {
                 </ul>
             </div>
         )}
-       <div> showing {message.mediaType}</div>
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
                 {message.videos && <VideosComponent key={`videos-${index}`} videos={message.videos} />}

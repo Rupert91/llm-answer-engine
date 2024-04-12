@@ -425,10 +425,8 @@ async function myAction(userMessage: string): Promise<any> {
     const processedQuery = await parseUserQuery(userMessage);
     const num = processedQuery.numResults; // 从processedQuery中获取numResults
     const numResults = Number(num);
-    const mediaType=processedQuery.mediaType;
 
     streamable.update({ 'numResults': numResults }); 
-    streamable.update({ 'numResults': mediaType }); 
 
     const [images, sources, videos] = await Promise.all([
       getImages(userMessage),
@@ -444,7 +442,7 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - Here is my query "${processedQuery}", print it and respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `
+          - Here is my query "${JSON.stringify(processedQuery)}", print it and respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `
         },
         { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
         ], stream: true, model: config.inferenceModel
