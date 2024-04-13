@@ -345,8 +345,6 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResul
         {
           role: "system",
           content: `
-          - Here are the search results with the form of an array: ${JSON.stringify(sources)}.
-
           You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
 
           After analyzing the given search results, which include details such as titles, snippets, and links, output a JSON array named 'finalResults'. This array should list the results in order of their relevance and usefulness, from most to least recommended.
@@ -361,6 +359,7 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResul
               "link": "http://example.com/1",
               "snippet": "This is an example snippet from the first result.",
             },
+
             // More results...
           ]
           
@@ -449,31 +448,33 @@ async function myAction(userMessage: string): Promise<any> {
 
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
-
+    
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:
         [{
           role: "system", content: `
-          - Here are the search results with the form of an array: ${JSON.stringify(sources)}.
-          As an advanced AI, you are tasked with organizing a list of search results to match the user's query as closely as possible. Your primary objective is to sort these results in order of relevance. Please prioritize the most pertinent information at the top and provide reasons for the order of these results.
-          Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet', and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
-          
-          For clarity, here is an example of what an item in 'finalResults' might look like:
-          [
-            {
-              "position": 1,
-              "title": "Example Title 1",
-              "link": "http://example.com/1",
-              "snippet": "This is an example snippet from the first result.",
-            },
-            // More results...
-          ]
-          `
+            - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
+            Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
+            Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', and 'position'. The 'position' field should dynamically indicate the rank or order of each result, based on an intelligent analysis of its content and relevance to the query provided.
+            If any properties are missing from a source, represent them with an empty string ("").
+            
+            Here is an example of what an item in 'finalResults' might look like:
+            [
+              {
+                "position": 1,
+                "title": "Investing Explained: Types of Investments and How To Get Started",
+                "link": "https://www.investopedia.com/terms/i/investing.asp",
+                "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
+                "relevance_score": 0.95
+              },
+              // More intelligently sorted results...
+            ]
+            Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
         },
-        { role: "user", content: `Here is my query "${JSON.stringify(processedQuery)}". Please sort all the sources based on how closely each source's title and snippet match the query. The most relevant sources should appear first.Make sure print all the sorted sources and output a JSON array named 'finalResults'.
-
-      ` },
+        {
+          role: "user", content: `Here is my query "${JSON.stringify(processedQuery)}". Based on this query, please intelligently sort all the sources by relevance, content depth, and query match. Ensure that the most relevant sources appear first. Output the sorted sources in a JSON array named 'finalResults'.`
+        },        
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
@@ -484,16 +485,11 @@ async function myAction(userMessage: string): Promise<any> {
         break;
       }
     }
-
+  // 在这里，finalResults 已经是包含了所需数据的数组
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
     const chatTime = (endTimeChatCompletion - startTimeChatCompletion) / 1000;
     streamable.update({ 'chatTime': chatTime });
-
-    if (!config.useOllamaInference) {
-      const finalResults = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在FinalResult中
-      streamable.update({ 'finalResults': finalResults }); 
-    }
 
     const overallEndTime = Date.now();  // 记录总体结束时间
     console.log(`总执行时间：${overallEndTime - overallStartTime}ms`);
