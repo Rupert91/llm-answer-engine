@@ -29,7 +29,7 @@ interface Message {
   userMessage: string;
   images: Image[];
   videos: Video[];
-  finalResults: finalResults[];
+  finalResults?: finalResults[];
   isStreaming: boolean;
   searchResults?: SearchResult[];
   numResults:any;
@@ -46,7 +46,7 @@ interface StreamMessage {
   llmResponseEnd?: boolean;
   images?: any;
   videos?: any;
-  finalResults: any;
+  finalResults?: any;
   numResults?:any;
   processedQuery:any;
   parseQueryTime:any;
@@ -170,11 +170,11 @@ export default function Page() {
             if (typedMessage.videos) {
               currentMessage.videos = [...typedMessage.videos];
             }
-            if (typedMessage.numResults) {
-              currentMessage.numResults = typedMessage.numResults;
-            }
             if (typedMessage.finalResults) {
               currentMessage.finalResults = typedMessage.finalResults;
+            }
+            if (typedMessage.numResults) {
+              currentMessage.numResults = typedMessage.numResults;
             }
             if (typedMessage.parseQueryTime) {
               currentMessage.parseQueryTime = typedMessage.parseQueryTime;
@@ -217,9 +217,21 @@ export default function Page() {
                   index={index}
                   key={`llm-response-${index}`}
                 />
+        {message.finalResults && (
             <div className="flex flex-col">
                 <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}
+                <ul>
+                    {message.finalResults.map((result, index) => (
+                        <li key={index} className="mb-2">
+                            <h4>{result.title}</h4> {/* 假设每个结果有标题 */}
+                            <p>{result.snippet}</p> {/* 显示结果摘要 */}
+                            <a href={result.link} target="_blank" rel="noopener noreferrer">Read More</a> {/* 链接到更多内容 */}
+                            <button onClick={() => handleFollowUpClick(result.link)}>Follow Up</button> {/* 处理点击事件 */}
+                        </li>
+                    ))}
+                </ul>
             </div>
+        )}
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
                 <p>Execution Time: {message.executionTime}</p>
@@ -227,18 +239,6 @@ export default function Page() {
                 <p>Search Time: {message.searchTime}</p>
                 <p>Chat Time: {message.chatTime}</p>
               </div>
-
-              <h4>Final Results:</h4>
-              <ul>
-                {message.finalResults?.map((result, index) => (
-                  <li key={index}>
-                    <h4>{result.title}</h4>
-                    <p>{result.snippet}</p>
-                    <a href={result.link} target="_blank" rel="noopener noreferrer">Read more...</a>
-                    <p>Position: {result.position}</p>
-                  </li>
-                ))}
-              </ul>
               <div className="w-full md:w-1/4 lg:pl-2">
                 {message.videos && <VideosComponent key={`videos-${index}`} videos={message.videos} />}
                 {message.images && <ImagesComponent key={`images-${index}`} images={message.images} />}
