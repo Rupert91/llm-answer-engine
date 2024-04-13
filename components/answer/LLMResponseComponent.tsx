@@ -43,7 +43,7 @@ const LLMResponseComponent = ({ llmResponse, currentLlmResponse, index }: LLMRes
                         <img src="./groq.png" alt="groq logo" className='w-6 h-6' />
                     </div>
                     <div className="dark:text-gray-300 text-gray-800">
-                    <JsonArrayComponent llmResponse={llmResponse} />
+                        <Markdown>{llmResponse}</Markdown>
                     </div>
                 </div>
             ) : (
