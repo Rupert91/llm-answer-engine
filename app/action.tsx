@@ -473,14 +473,14 @@ async function myAction(userMessage: string): Promise<any> {
                 "link": "https://www.investopedia.com/terms/i/investing.asp",
                 "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
                 "relevance_score": 0.95,
-                "Reason": "This result is ranked highest due to its direct address of the query's topic, offering detailed content that aligns closely with the user's search intent."
+                "Reason": "why recommend it"
               },
               // More intelligently sorted results...
             ]
             Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
         },        
         {
-          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", You must sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
         },        
         ], stream: true, model: config.inferenceModel
     });
