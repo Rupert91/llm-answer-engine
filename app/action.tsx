@@ -429,6 +429,11 @@ async function myAction(userMessage: string): Promise<any> {
     const num = processedQuery.numResults; // 从processedQuery中获取numResults
     const numResults = Number(num);
 
+    const topic = processedQuery.topic;       // 获取 topic
+    const mediaType = processedQuery.mediaType; // 获取 mediaType
+// 创建一个新的对象，仅包含 topic 和 mediaType
+    const filteredQuery = { topic, mediaType };   
+
     streamable.update({ 'numResults': numResults }); 
 
     const startTimeFetchData = Date.now();
@@ -473,7 +478,7 @@ async function myAction(userMessage: string): Promise<any> {
             Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
         },
         {
-          role: "user",   "content": `Based on the query "${JSON.stringify(processedQuery)}", please sort all sources by relevance, content depth, and accuracy, ignoring 'numResults'. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
         },        
         ], stream: true, model: config.inferenceModel
     });
