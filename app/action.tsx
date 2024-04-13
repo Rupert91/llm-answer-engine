@@ -458,12 +458,13 @@ async function myAction(userMessage: string): Promise<any> {
     const chatCompletion = await openai.chat.completions.create({
       messages:
         [{
-          role: "system", content: `
+          "role": "system",
+          "content": `
             - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
             Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
-            Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', and 'position'. The 'position' field should dynamically indicate the rank or order of each result, based on an intelligent analysis of its content and relevance to the query provided.
+            Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided.
             If any properties are missing from a source, represent them with an empty string ("").
-            
+        
             Here is an example of what an item in 'finalResults' might look like:
             [
               {
@@ -471,12 +472,13 @@ async function myAction(userMessage: string): Promise<any> {
                 "title": "Investing Explained: Types of Investments and How To Get Started",
                 "link": "https://www.investopedia.com/terms/i/investing.asp",
                 "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
-                "relevance_score": 0.95
+                "relevance_score": 0.95,
+                "Reason": "This result is ranked highest due to its direct address of the query's topic, offering detailed content that aligns closely with the user's search intent."
               },
               // More intelligently sorted results...
             ]
             Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
-        },
+        },        
         {
           role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
         },        
