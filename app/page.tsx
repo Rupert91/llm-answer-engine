@@ -170,9 +170,6 @@ export default function Page() {
             if (typedMessage.videos) {
               currentMessage.videos = [...typedMessage.videos];
             }
-            if (typedMessage.finalResults) {
-              currentMessage.finalResults = typedMessage.finalResults;
-            }
             if (typedMessage.numResults) {
               currentMessage.numResults = typedMessage.numResults;
             }
@@ -217,21 +214,9 @@ export default function Page() {
                   index={index}
                   key={`llm-response-${index}`}
                 />
-        {message.finalResults && (
             <div className="flex flex-col">
                 <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}
-                <ul>
-                    {message.finalResults.map((result, index) => (
-                        <li key={index} className="mb-2">
-                            <h4>{result.title}</h4> {/* 假设每个结果有标题 */}
-                            <p>{result.snippet}</p> {/* 显示结果摘要 */}
-                            <a href={result.link} target="_blank" rel="noopener noreferrer">Read More</a> {/* 链接到更多内容 */}
-                            <button onClick={() => handleFollowUpClick(result.link)}>Follow Up</button> {/* 处理点击事件 */}
-                        </li>
-                    ))}
-                </ul>
             </div>
-        )}
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
                 <p>Execution Time: {message.executionTime}</p>
