@@ -343,78 +343,78 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
 //   });
 // };
 
-const sortAndFilterResults = async (filteredQuery: FilterQuery,sources: SearchResult[]): Promise<finalResults[]> => {
-  try {
-    const response = await openai.chat.completions.create({
-      model: config.inferenceModel,
-      messages: [
-        {
-          "role": "system",
-          "content": `
-            - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
-            Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
-            Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided.
-            If any properties are missing from a source, represent them with an empty string ("").
+// const sortAndFilterResults = async (filteredQuery: FilterQuery,sources: SearchResult[]): Promise<finalResults[]> => {
+//   try {
+//     const response = await openai.chat.completions.create({
+//       model: config.inferenceModel,
+//       messages: [
+//         {
+//           "role": "system",
+//           "content": `
+//             - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
+//             Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
+//             Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided.
+//             If any properties are missing from a source, represent them with an empty string ("").
         
-            Here is an example of what an item in 'finalResults' might look like:
-            [
-              {
-                "position": 1,
-                "title": "Investing Explained: Types of Investments and How To Get Started",
-                "link": "https://www.investopedia.com/terms/i/investing.asp",
-                "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
-                "relevance_score": 0.95,
-                "Reason": "why recommend it"
-              },
-              // More intelligently sorted results...
-            ]
-            Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
-        },        
-        {
-          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
-        },  
-      ],
-      response_format: { type: "json_object" },
-    });
+//             Here is an example of what an item in 'finalResults' might look like:
+//             [
+//               {
+//                 "position": 1,
+//                 "title": "Investing Explained: Types of Investments and How To Get Started",
+//                 "link": "https://www.investopedia.com/terms/i/investing.asp",
+//                 "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
+//                 "relevance_score": 0.95,
+//                 "Reason": "why recommend it"
+//               },
+//               // More intelligently sorted results...
+//             ]
+//             Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
+//         },        
+//         {
+//           role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+//         },  
+//       ],
+//       response_format: { type: "json_object" },
+//     });
 
-    // Return the entire response for external processing
-    const responseString = response.choices?.[0]?.message?.content?.trim();
-    if (!responseString) {
-      throw new Error("No response from OpenAI");
-    }
+//     // Return the entire response for external processing
+//     const responseString = response.choices?.[0]?.message?.content?.trim();
+//     if (!responseString) {
+//       throw new Error("No response from OpenAI");
+//     }
   
-    // 尝试解析响应字符串为JSON
-    let parsedResults;
-    try {
-      parsedResults = JSON.parse(responseString);
-    } catch (parseError) {
-      console.error('Error parsing JSON response:', parseError);
-      throw new Error("Failed to parse JSON response from OpenAI");
-    }
+//     // 尝试解析响应字符串为JSON
+//     let parsedResults;
+//     try {
+//       parsedResults = JSON.parse(responseString);
+//     } catch (parseError) {
+//       console.error('Error parsing JSON response:', parseError);
+//       throw new Error("Failed to parse JSON response from OpenAI");
+//     }
   
-    // 验证解析后的数组是否符合期望的格式
-    if (!Array.isArray(parsedResults) || parsedResults.some(item => 
-        typeof item.title !== 'string' ||
-        typeof item.link !== 'string' ||
-        typeof item.snippet !== 'string' ||
-        typeof item.position !== 'number')) {
-          throw new Error("API response format is invalid or missing required fields");
-        }
+//     // 验证解析后的数组是否符合期望的格式
+//     if (!Array.isArray(parsedResults) || parsedResults.some(item => 
+//         typeof item.title !== 'string' ||
+//         typeof item.link !== 'string' ||
+//         typeof item.snippet !== 'string' ||
+//         typeof item.position !== 'number')) {
+//           throw new Error("API response format is invalid or missing required fields");
+//         }
   
-      // 构建并返回finalResults数组，不包含favicon字段
-      const finalResults = parsedResults.map(item => ({
-        title: item.title || "",
-        link: item.link || "",
-        snippet: item.snippet || "",
-        position: item.position
-      }));
+//       // 构建并返回finalResults数组，不包含favicon字段
+//       const finalResults = parsedResults.map(item => ({
+//         title: item.title || "",
+//         link: item.link || "",
+//         snippet: item.snippet || "",
+//         position: item.position
+//       }));
 
-      return finalResults;
-    } catch (error) {
-      console.error('Error processing the response:', error);
-      throw error;
-    };
-  }
+//       return finalResults;
+//     } catch (error) {
+//       console.error('Error processing the response:', error);
+//       throw error;
+//     };
+//   }
 // 10. Main action function that orchestrates the entire process
 async function myAction(userMessage: string): Promise<any> {
   "use server";
@@ -456,8 +456,6 @@ async function myAction(userMessage: string): Promise<any> {
 
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
-    
-    const finalResults=await sortAndFilterResults(filteredQuery,sources)
 
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
@@ -497,7 +495,6 @@ async function myAction(userMessage: string): Promise<any> {
         break;
       }
     }
-  // 在这里，finalResults 已经是包含了所需数据的数组
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
     const chatTime = (endTimeChatCompletion - startTimeChatCompletion) / 1000;
