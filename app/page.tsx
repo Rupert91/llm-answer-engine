@@ -29,7 +29,7 @@ interface Message {
   userMessage: string;
   images: Image[];
   videos: Video[];
-  finalResults?: finalResults[];
+  finalResults: finalResults[];
   isStreaming: boolean;
   searchResults?: SearchResult[];
   numResults:any;
@@ -46,7 +46,7 @@ interface StreamMessage {
   llmResponseEnd?: boolean;
   images?: any;
   videos?: any;
-  finalResults?: any;
+  finalResults: any;
   numResults?:any;
   processedQuery:any;
   parseQueryTime:any;
@@ -173,6 +173,9 @@ export default function Page() {
             if (typedMessage.numResults) {
               currentMessage.numResults = typedMessage.numResults;
             }
+            if (typedMessage.finalResults) {
+              currentMessage.finalResults = typedMessage.finalResults;
+            }
             if (typedMessage.parseQueryTime) {
               currentMessage.parseQueryTime = typedMessage.parseQueryTime;
             }
@@ -224,6 +227,18 @@ export default function Page() {
                 <p>Search Time: {message.searchTime}</p>
                 <p>Chat Time: {message.chatTime}</p>
               </div>
+
+              <h4>Final Results:</h4>
+              <ul>
+                {message.finalResults?.map((result, index) => (
+                  <li key={index}>
+                    <h4>{result.title}</h4>
+                    <p>{result.snippet}</p>
+                    <a href={result.link} target="_blank" rel="noopener noreferrer">Read more...</a>
+                    <p>Position: {result.position}</p>
+                  </li>
+                ))}
+              </ul>
               <div className="w-full md:w-1/4 lg:pl-2">
                 {message.videos && <VideosComponent key={`videos-${index}`} videos={message.videos} />}
                 {message.images && <ImagesComponent key={`images-${index}`} images={message.images} />}

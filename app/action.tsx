@@ -60,6 +60,12 @@ interface finalResults {
   position: number;
 };
 
+interface FilterQuery {
+  topic: string;
+  mediaType: string;
+}
+
+
 //* 
 async function parseUserQuery(message: string): Promise<ParsedQuery> {
   try {
@@ -337,39 +343,36 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
 //   });
 // };
 
-const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResults[]> => {
+const sortAndFilterResults = async (filteredQuery: FilterQuery,sources: SearchResult[]): Promise<finalResults[]> => {
   try {
     const response = await openai.chat.completions.create({
       model: config.inferenceModel,
       messages: [
         {
-          role: "system",
-          content: `
-          You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
-
-          After analyzing the given search results, which include details such as titles, snippets, and links, output a JSON array named 'finalResults'. This array should list the results in order of their relevance and usefulness, from most to least recommended.
-          
-          Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
-          
-          For clarity, here is an example of what an item in 'finalResults' might look like:
-          [
-            {
-              "position": 1,
-              "title": "Example Title 1",
-              "link": "http://example.com/1",
-              "snippet": "This is an example snippet from the first result.",
-            },
-
-            // More results...
-          ]
-          
-          Your primary goal is to ensure that the results are meticulously ordered to assist users in finding the most accurate and helpful information quickly. Please proceed with analyzing and ordering the search results accordingly.
-          `,
-        },
+          "role": "system",
+          "content": `
+            - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
+            Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
+            Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided.
+            If any properties are missing from a source, represent them with an empty string ("").
+        
+            Here is an example of what an item in 'finalResults' might look like:
+            [
+              {
+                "position": 1,
+                "title": "Investing Explained: Types of Investments and How To Get Started",
+                "link": "https://www.investopedia.com/terms/i/investing.asp",
+                "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
+                "relevance_score": 0.95,
+                "Reason": "why recommend it"
+              },
+              // More intelligently sorted results...
+            ]
+            Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
+        },        
         {
-          role: "user",
-          content: `Here are the search results. The original user query is "{(message)}". Please sort them according to the rules.`,
-        },
+          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+        },  
       ],
       response_format: { type: "json_object" },
     });
@@ -454,6 +457,8 @@ async function myAction(userMessage: string): Promise<any> {
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
     
+    const finalResults=await sortAndFilterResults(filteredQuery,sources)
+
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:
