@@ -34,6 +34,10 @@ interface Message {
   searchResults?: SearchResult[];
   numResults:any;
   processedQuery:any;
+  parseQueryTime:any;
+  searchTime:any;
+  chatTime:any;
+  executionTime:string;
 }
 interface StreamMessage {
   searchResults?: any;
@@ -45,6 +49,10 @@ interface StreamMessage {
   FinalResult?: any;
   numResults?:any;
   processedQuery:any;
+  parseQueryTime:any;
+  searchTime:any;
+  chatTime:any;
+  executionTime:string;
 }
 interface Image {
   link: string;
@@ -126,6 +134,10 @@ export default function Page() {
       numResults:'',
       searchResults: [] as SearchResult[],
       processedQuery:[],
+      executionTime:'',
+      parseQueryTime:'',
+      searchTime:'',
+      chatTime:'',
     };
     setMessages(prevMessages => [...prevMessages, newMessage]);
     let lastAppendedResponse = "";
@@ -163,6 +175,18 @@ export default function Page() {
             }
             if (typedMessage.numResults) {
               currentMessage.numResults = typedMessage.numResults;
+            }
+            if (typedMessage.parseQueryTime) {
+              currentMessage.parseQueryTime = typedMessage.parseQueryTime;
+            }
+            if (typedMessage.searchTime) {
+              currentMessage.searchTime = typedMessage.searchTime;
+            }
+            if (typedMessage.chatTime) {
+              currentMessage.chatTime = typedMessage.chatTime;
+            }
+            if (typedMessage.executionTime) {
+              currentMessage.executionTime = typedMessage.executionTime;
             }
           }
           return messagesCopy;
@@ -208,6 +232,12 @@ export default function Page() {
                 </ul>
             </div>
         )}
+              </div>
+              <div>
+                <p>Execution Time: {message.executionTime}</p>
+                <p>Parse Query Time: {message.parseQueryTime}</p>
+                <p>Search Time: {message.searchTime}</p>
+                <p>Chat Time: {message.chatTime}</p>
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
                 {message.videos && <VideosComponent key={`videos-${index}`} videos={message.videos} />}

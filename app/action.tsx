@@ -421,28 +421,45 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<FinalResul
 async function myAction(userMessage: string): Promise<any> {
   "use server";
   const streamable = createStreamableValue({});
+  const overallStartTime = Date.now();  // 记录总体开始时间
+
   (async () => {
+    const startTimeParseQuery = Date.now();
     const processedQuery = await parseUserQuery(userMessage);
+    const endTimeParseQuery = Date.now();
+    const parseQueryTime =endTimeParseQuery - startTimeParseQuery
+
+    streamable.update({ 'parseQueryTime': parseQueryTime }); 
+
     const num = processedQuery.numResults; // 从processedQuery中获取numResults
     const numResults = Number(num);
 
     streamable.update({ 'numResults': numResults }); 
 
+    const startTimeFetchData = Date.now();
     const [images, sources, videos] = await Promise.all([
       getImages(userMessage),
       getSources(processedQuery),
       getVideos(userMessage),
     ]);
+    const endTimeFetchData = Date.now();
+    const searchTime = endTimeFetchData - startTimeFetchData
+    console.log(`获取数据耗时：${endTimeFetchData - startTimeFetchData}ms`);
+
     streamable.update({ 'searchResults': sources });
     streamable.update({ 'images': images });
     streamable.update({ 'videos': videos });
+    streamable.update({ 'searchTime': searchTime });
+
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
+    
+    const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:
         [{
           role: "system", content: `
-          -You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
+          -You are an advanced AI tasked with organizing a list of search results based on their relevance to user's query. Your objective is to sort these results, highlighting the most pertinent information first and give me the reason.
           Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
           
           For clarity, here is an example of what an item in 'finalResults' might look like:
@@ -473,9 +490,17 @@ async function myAction(userMessage: string): Promise<any> {
         streamable.update({ 'llmResponse': chunk.choices[0].delta.content });
       } else if (chunk.choices[0].finish_reason === "stop") {
         streamable.update({ 'llmResponseEnd': true });
+        break;
       }
     }
+    const endTimeChatCompletion = Date.now();
+    console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
+    const chatTime = endTimeChatCompletion - startTimeChatCompletion
+    streamable.update({ 'chatTime': chatTime });
 
+    const overallEndTime = Date.now();  // 记录总体结束时间
+    console.log(`总执行时间：${overallEndTime - overallStartTime}ms`);
+    streamable.update({ 'executionTime': overallEndTime - overallStartTime });
     streamable.done({ status: 'done' });
   })();
   return streamable.value;
