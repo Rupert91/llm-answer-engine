@@ -480,7 +480,7 @@ async function myAction(userMessage: string): Promise<any> {
             Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
         },        
         {
-          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+          role: "user",   "content": `Here is the query "${JSON.stringify(filteredQuery)}"`
         },        
         ], stream: true, model: config.inferenceModel
     });
@@ -492,7 +492,6 @@ async function myAction(userMessage: string): Promise<any> {
         break;
       }
     }
-  // 在这里，finalResults 已经是包含了所需数据的数组
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
     const chatTime = (endTimeChatCompletion - startTimeChatCompletion) / 1000;
