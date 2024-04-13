@@ -454,6 +454,8 @@ async function myAction(userMessage: string): Promise<any> {
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
     
+    const finalResults=await sortAndFilterResults(sources)
+
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:

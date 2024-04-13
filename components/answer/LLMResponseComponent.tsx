@@ -7,6 +7,8 @@ interface LLMResponseComponentProps {
 
 // 2. Import the 'Markdown' component from 'react-markdown'
 import Markdown from 'react-markdown';
+import JsonArrayComponent from './JsonArrayComponent'; // 确保正确导入 JsonArrayComponent
+
 
 // 3. Define the 'StreamingComponent' functional component that renders the 'currentLlmResponse'
 const StreamingComponent = ({ currentLlmResponse }: { currentLlmResponse: string }) => {
@@ -41,7 +43,7 @@ const LLMResponseComponent = ({ llmResponse, currentLlmResponse, index }: LLMRes
                         <img src="./groq.png" alt="groq logo" className='w-6 h-6' />
                     </div>
                     <div className="dark:text-gray-300 text-gray-800">
-                        <Markdown>{llmResponse}</Markdown>
+                    <JsonArrayComponent llmResponse={llmResponse} />
                     </div>
                 </div>
             ) : (
