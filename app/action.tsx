@@ -459,7 +459,8 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          - As an advanced AI, you are tasked with organizing a list of search results to match the user's query as closely as possible. Your primary objective is to sort these results in order of relevance. Please prioritize the most pertinent information at the top and provide reasons for the order of these results.
+          - Here are the search results with the form of an array: ${JSON.stringify(sources)}.
+          As an advanced AI, you are tasked with organizing a list of search results to match the user's query as closely as possible. Your primary objective is to sort these results in order of relevance. Please prioritize the most pertinent information at the top and provide reasons for the order of these results.
           Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet', and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
           
           For clarity, here is an example of what an item in 'finalResults' might look like:
@@ -472,39 +473,21 @@ async function myAction(userMessage: string): Promise<any> {
             },
             // More results...
           ]
-          Here are the search results with the form of an array: ${JSON.stringify(sources)}.`
+          `
         },
         { role: "user", content: `Here is my query "${JSON.stringify(processedQuery)}". Please sort all the sources based on how closely each source's title and snippet match the query. The most relevant sources should appear first.Make sure print all the sorted sources and output a JSON array named 'finalResults'.
 
       ` },
         ], stream: true, model: config.inferenceModel
     });
-
     for await (const chunk of chatCompletion) {
       if (chunk.choices[0].delta && chunk.choices[0].finish_reason !== "stop") {
-          const responseContent = chunk.choices[0].delta.content;
-          streamable.update({ 'llmResponse': responseContent });
-  
-          try {
-              const jsonContent = JSON.parse(responseContent as string);
-              if (jsonContent.finalResults) {
-                  // 直接在这里构建finalResults数组，确保不包含favicon字段
-                  const finalResults = jsonContent.finalResults.map((item: { title: string; link: string; snippet: string; position: number }) => ({
-                    title: item.title || "",
-                      link: item.link || "",
-                      snippet: item.snippet || "",
-                      position: item.position
-                  }));
-                  streamable.update({ 'finalResults': finalResults });  // 更新streamable对象
-              }
-          } catch (error) {
-              console.error("Error parsing JSON response:", error);
-          }
+        streamable.update({ 'llmResponse': chunk.choices[0].delta.content });
       } else if (chunk.choices[0].finish_reason === "stop") {
-          streamable.update({ 'llmResponseEnd': true });
-          break;
+        streamable.update({ 'llmResponseEnd': true });
+        break;
       }
-  }
+    }
   // 在这里，finalResults 已经是包含了所需数据的数组
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
