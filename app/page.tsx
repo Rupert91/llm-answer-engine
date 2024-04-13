@@ -29,7 +29,7 @@ interface Message {
   userMessage: string;
   images: Image[];
   videos: Video[];
-  FinalResult?: FinalResult[];
+  finalResults?: finalResults[];
   isStreaming: boolean;
   searchResults?: SearchResult[];
   numResults:any;
@@ -46,7 +46,7 @@ interface StreamMessage {
   llmResponseEnd?: boolean;
   images?: any;
   videos?: any;
-  FinalResult?: any;
+  finalResults?: any;
   numResults?:any;
   processedQuery:any;
   parseQueryTime:any;
@@ -61,7 +61,7 @@ interface Video {
   link: string;
   imageUrl: string;
 }
-interface FinalResult {
+interface finalResults {
   title: string;
   link: string;
   snippet: string;
@@ -129,7 +129,7 @@ export default function Page() {
       content: '',
       images: [],
       videos: [],
-      FinalResult: [] as FinalResult[],  // 设置为 FinalResult 数组
+      finalResults: [] as finalResults[],  // 设置为 FinalResult 数组
       isStreaming: true,
       numResults:'',
       searchResults: [] as SearchResult[],
@@ -170,8 +170,8 @@ export default function Page() {
             if (typedMessage.videos) {
               currentMessage.videos = [...typedMessage.videos];
             }
-            if (typedMessage.FinalResult) {
-              currentMessage.FinalResult = typedMessage.FinalResult;
+            if (typedMessage.finalResults) {
+              currentMessage.finalResults = typedMessage.finalResults;
             }
             if (typedMessage.numResults) {
               currentMessage.numResults = typedMessage.numResults;
@@ -217,11 +217,11 @@ export default function Page() {
                   index={index}
                   key={`llm-response-${index}`}
                 />
-        {message.FinalResult && (
+        {message.finalResults && (
             <div className="flex flex-col">
                 <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}
                 <ul>
-                    {message.FinalResult.map((result, index) => (
+                    {message.finalResults.map((result, index) => (
                         <li key={index} className="mb-2">
                             <h4>{result.title}</h4> {/* 假设每个结果有标题 */}
                             <p>{result.snippet}</p> {/* 显示结果摘要 */}
@@ -233,7 +233,7 @@ export default function Page() {
             </div>
         )}
               </div>
-              <div>
+              <div className="w-full md:w-1/4 lg:pl-2">
                 <p>Execution Time: {message.executionTime}</p>
                 <p>Parse Query Time: {message.parseQueryTime}</p>
                 <p>Search Time: {message.searchTime}</p>

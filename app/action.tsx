@@ -53,7 +53,7 @@ interface ParsedQuery {
 };
 
 // 定义FinalResult类型
-interface FinalResult {
+interface finalResults {
   title: string;
   link: string;
   snippet: string;
@@ -337,7 +337,7 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
 //   });
 // };
 
-const sortAndFilterResults = async (sources: SearchResult[]): Promise<FinalResult[]> => {
+const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResults[]> => {
   try {
     const response = await openai.chat.completions.create({
       model: config.inferenceModel,
@@ -427,7 +427,7 @@ async function myAction(userMessage: string): Promise<any> {
     const startTimeParseQuery = Date.now();
     const processedQuery = await parseUserQuery(userMessage);
     const endTimeParseQuery = Date.now();
-    const parseQueryTime =endTimeParseQuery - startTimeParseQuery
+    const parseQueryTime =(endTimeParseQuery - startTimeParseQuery)/1000;
 
     streamable.update({ 'parseQueryTime': parseQueryTime }); 
 
@@ -443,7 +443,7 @@ async function myAction(userMessage: string): Promise<any> {
       getVideos(userMessage),
     ]);
     const endTimeFetchData = Date.now();
-    const searchTime = endTimeFetchData - startTimeFetchData
+    const searchTime = (endTimeFetchData - startTimeFetchData)/1000;
     console.log(`获取数据耗时：${endTimeFetchData - startTimeFetchData}ms`);
 
     streamable.update({ 'searchResults': sources });
@@ -459,7 +459,7 @@ async function myAction(userMessage: string): Promise<any> {
       messages:
         [{
           role: "system", content: `
-          -You are an advanced AI tasked with organizing a list of search results based on their relevance to user's query. Your objective is to sort these results, highlighting the most pertinent information first and give me the reason.
+          - As an advanced AI, you are tasked with organizing a list of search results to match the user's query as closely as possible. Your primary objective is to sort these results in order of relevance. Please prioritize the most pertinent information at the top and provide reasons for the order of these results.
           Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
           
           For clarity, here is an example of what an item in 'finalResults' might look like:
@@ -470,12 +470,6 @@ async function myAction(userMessage: string): Promise<any> {
               "link": "http://example.com/1",
               "snippet": "This is an example snippet from the first result.",
             },
-            {
-              "position": 2,
-              "title": "Example Title 2",
-              "link": "http://example.com/2",
-              "snippet": "This is an example snippet from the second result.",
-            },
             // More results...
           ]
           Here are the search results with the form of an array: ${JSON.stringify(sources)}.`
@@ -485,17 +479,40 @@ async function myAction(userMessage: string): Promise<any> {
       ` },
         ], stream: true, model: config.inferenceModel
     });
+
+    let finalResults = [];  // 初始化finalResults数组
+
     for await (const chunk of chatCompletion) {
       if (chunk.choices[0].delta && chunk.choices[0].finish_reason !== "stop") {
-        streamable.update({ 'llmResponse': chunk.choices[0].delta.content });
+          const responseContent = chunk.choices[0].delta.content;
+          streamable.update({ 'llmResponse': responseContent });
+  
+          try {
+              const jsonResponse = JSON.parse(responseContent as string);
+              if (jsonResponse.finalResults) {
+                  // 直接在这里构建finalResults数组，确保不包含favicon字段
+                  finalResults = jsonResponse.finalResults.map((item: { title: any; link: any; snippet: any; position: any; }) => ({
+                      title: item.title || "",
+                      link: item.link || "",
+                      snippet: item.snippet || "",
+                      position: item.position
+                  }));
+                  streamable.update({ 'finalResults': finalResults });  // 更新streamable对象
+              }
+          } catch (error) {
+              console.error("Error parsing JSON response:", error);
+          }
       } else if (chunk.choices[0].finish_reason === "stop") {
-        streamable.update({ 'llmResponseEnd': true });
-        break;
+          streamable.update({ 'llmResponseEnd': true });
+          break;
       }
-    }
+  }
+  
+  // 在这里，finalResults 已经是包含了所需数据的数组
+  return finalResults;
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
-    const chatTime = endTimeChatCompletion - startTimeChatCompletion
+    const chatTime = (endTimeChatCompletion - startTimeChatCompletion) / 1000;
     streamable.update({ 'chatTime': chatTime });
 
     const overallEndTime = Date.now();  // 记录总体结束时间
