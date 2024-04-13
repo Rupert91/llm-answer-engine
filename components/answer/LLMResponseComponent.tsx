@@ -7,7 +7,6 @@ interface LLMResponseComponentProps {
 
 // 2. Import the 'Markdown' component from 'react-markdown'
 import Markdown from 'react-markdown';
-import JsonArrayComponent from './JsonArrayComponent'; // 确保正确导入 JsonArrayComponent
 
 
 // 3. Define the 'StreamingComponent' functional component that renders the 'currentLlmResponse'
