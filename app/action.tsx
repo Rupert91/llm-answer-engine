@@ -460,7 +460,7 @@ async function myAction(userMessage: string): Promise<any> {
         [{
           role: "system", content: `
           - As an advanced AI, you are tasked with organizing a list of search results to match the user's query as closely as possible. Your primary objective is to sort these results in order of relevance. Please prioritize the most pertinent information at the top and provide reasons for the order of these results.
-          Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet',  and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
+          Each item in 'finalResults' must be a JSON object that includes the following properties: 'title', 'link', 'snippet', 'reason' and 'position'. The 'position' field should indicate the rank or order of each result based on its relevance. If any of these properties are missing from a source, represent them with an empty string ("").
           
           For clarity, here is an example of what an item in 'finalResults' might look like:
           [
@@ -469,6 +469,7 @@ async function myAction(userMessage: string): Promise<any> {
               "title": "Example Title 1",
               "link": "http://example.com/1",
               "snippet": "This is an example snippet from the first result.",
+              "reason": "why recommend it",
             },
             // More results...
           ]
