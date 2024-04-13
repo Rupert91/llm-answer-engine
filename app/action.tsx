@@ -345,6 +345,8 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResul
         {
           role: "system",
           content: `
+          - Here are the search results with the form of an array: ${JSON.stringify(sources)}.
+
           You are an advanced AI tasked with organizing a list of search results based on their relevance to a user's query. Your objective is to sort these results in a way that they provide maximum value to the user, highlighting the most pertinent information first.
 
           After analyzing the given search results, which include details such as titles, snippets, and links, output a JSON array named 'finalResults'. This array should list the results in order of their relevance and usefulness, from most to least recommended.
@@ -358,12 +360,6 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResul
               "title": "Example Title 1",
               "link": "http://example.com/1",
               "snippet": "This is an example snippet from the first result.",
-            },
-            {
-              "position": 2,
-              "title": "Example Title 2",
-              "link": "http://example.com/2",
-              "snippet": "This is an example snippet from the second result.",
             },
             // More results...
           ]
@@ -453,7 +449,7 @@ async function myAction(userMessage: string): Promise<any> {
 
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
-    
+
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:
@@ -488,11 +484,16 @@ async function myAction(userMessage: string): Promise<any> {
         break;
       }
     }
-  // 在这里，finalResults 已经是包含了所需数据的数组
+
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
     const chatTime = (endTimeChatCompletion - startTimeChatCompletion) / 1000;
     streamable.update({ 'chatTime': chatTime });
+
+    if (!config.useOllamaInference) {
+      const finalResults = await sortAndFilterResults(sources); // 使用sortAndFilterResults替代relevantQuestions，并将结果存储在FinalResult中
+      streamable.update({ 'finalResults': finalResults }); 
+    }
 
     const overallEndTime = Date.now();  // 记录总体结束时间
     console.log(`总执行时间：${overallEndTime - overallStartTime}ms`);
