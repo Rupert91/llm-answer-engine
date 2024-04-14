@@ -65,7 +65,7 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
       messages: [
         {
           role: "system",
-          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results. 
+          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results(If the user does not specify the number of results, the default should be set to 3). 
           Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
         },
         {
@@ -446,6 +446,8 @@ async function myAction(userMessage: string): Promise<any> {
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
     
+    const finalResults=await sortAndFilterResults(sources)
+
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:
