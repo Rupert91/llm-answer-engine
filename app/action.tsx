@@ -51,6 +51,7 @@ interface ParsedQuery {
   mediaType: string;
   numResults: number;
 };
+
 // 定义FinalResult类型
 interface finalResults {
   title: string;
@@ -58,6 +59,7 @@ interface finalResults {
   snippet: string;
   position: number;
 };
+
 //* 
 async function parseUserQuery(message: string): Promise<ParsedQuery> {
   try {
@@ -66,8 +68,7 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
       messages: [
         {
           role: "system",
-          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results(If the user does not specify the number of results, the default should be set to 3). 
-          Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
+          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results. Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
         },
         {
           role: "user",
@@ -75,11 +76,13 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
         }
       ],
     });
+
     // 解析模型的响应
     const jsonString = response.choices?.[0]?.message?.content?.trim();
     if (!jsonString) {
       throw new Error("No response from OpenAI");
     }
+
     // 尝试解析响应字符串为JSON
     let jsonResponse;
     try {
@@ -88,6 +91,7 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
       console.error('Error parsing JSON response:', parseError);
       throw new Error("Failed to parse JSON response from OpenAI");
     }
+
     // 验证解析后的对象是否包含必要的字段
     if (typeof jsonResponse.topic !== 'string' ||
         typeof jsonResponse.mediaType !== 'string' ||
@@ -108,6 +112,7 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
     throw error;
   }
 }
+
 
 // 4. Fetch search results from Brave Search API
 async function getSources(Pquery: ParsedQuery, numberOfPagesToScan = config.numberOfPagesToScan): Promise<SearchResult[]> {
@@ -449,8 +454,6 @@ async function myAction(userMessage: string): Promise<any> {
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
     
-    const finalResults=await sortAndFilterResults(sources)
-
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:
@@ -477,7 +480,7 @@ async function myAction(userMessage: string): Promise<any> {
             Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
         },        
         {
-          role: "user",   "content": `Here is the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
         },        
         ], stream: true, model: config.inferenceModel
     });
@@ -489,6 +492,7 @@ async function myAction(userMessage: string): Promise<any> {
         break;
       }
     }
+  // 在这里，finalResults 已经是包含了所需数据的数组
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
     const chatTime = (endTimeChatCompletion - startTimeChatCompletion) / 1000;
@@ -520,4 +524,3 @@ export const AI = createAI({
   initialUIState,
   initialAIState,
 });
-
