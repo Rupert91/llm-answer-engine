@@ -471,9 +471,9 @@ async function myAction(userMessage: string): Promise<any> {
               "position": 1,
               "title": "Investing Explained: Types of Investments and How To Get Started",
               "link": "https://www.investopedia.com/terms/i/investing.asp",
-              "snippet": "abstract",
+              "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
               "relevance_score": 0.95,
-              "Reason": "why recommend it"
+              "Reason": "This result is ranked highest due to its direct address of the query's topic, offering detailed content that aligns closely with the user's search intent."
             },
             // More intelligently sorted results...
           ]
