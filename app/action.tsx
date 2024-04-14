@@ -68,7 +68,7 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
       messages: [
         {
           role: "system",
-          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results( If the user does not specify the number of results, the default should be set to 3,cap at 9 if specified number exceeds this). Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
+          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results.If the user does not specify the number of results, the default should be set to 3. If the specified number exceeds 9, the number of results should be capped at 9. Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
         },
         {
           role: "user",
