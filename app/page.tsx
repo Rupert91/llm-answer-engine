@@ -171,7 +171,7 @@ export default function Page() {
               currentMessage.videos = [...typedMessage.videos];
             }
             if (typedMessage.finalResults) {
-              currentMessage.finalResults = typedMessage.finalResults;
+              currentMessage.finalResults =[typedMessage.finalResults];
             }
             if (typedMessage.numResults) {
               currentMessage.numResults = typedMessage.numResults;
