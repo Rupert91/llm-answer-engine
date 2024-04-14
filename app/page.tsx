@@ -159,21 +159,6 @@ export default function Page() {
             }
             if (typedMessage.llmResponseEnd) {
               currentMessage.isStreaming = false;
-              try {
-                // 尝试解析累积的 JSON 字符串
-                const finalResults = JSON.parse(llmResponseString);
-            
-                // 更新消息状态，包括解析出的 JSON 数据
-                setMessages(prevMessages => prevMessages.map(msg =>
-                  msg.id === newMessageId ? {...msg, finalResults, isStreaming: false} : msg
-                ));
-            
-                // 清空累积的响应字符串以避免重复解析
-                llmResponseString = "";
-              } catch (error) {
-                console.error("Error parsing final JSON data:", error);
-                // 可能需要额外的错误处理逻辑
-              }
             }
             if (typedMessage.processedQuery) {
               currentMessage.processedQuery = typedMessage.processedQuery;
@@ -239,14 +224,15 @@ export default function Page() {
             <div className="flex flex-col">
                 <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}
                 <ul>
-                {message.finalResults.map((result, index) => (
-                  <li key={index}>
-                    <p>Title: {result.title}</p>
-                    <p>Link: <a href={result.link} target="_blank" rel="noopener noreferrer">{result.link}</a></p>
-                    <p>Snippet: {result.snippet}</p>
-                  </li>
-                ))}
-              </ul>
+                    {message.finalResults.map((result, index) => (
+                        <li key={index} className="mb-2">
+                            <h4>{result.title}</h4> {/* 假设每个结果有标题 */}
+                            <p>{result.snippet}</p> {/* 显示结果摘要 */}
+                            <a href={result.link} target="_blank" rel="noopener noreferrer">Read More</a> {/* 链接到更多内容 */}
+                            <button onClick={() => handleFollowUpClick(result.link)}>Follow Up</button> {/* 处理点击事件 */}
+                        </li>
+                    ))}
+                </ul>
             </div>
         )}
               </div>
