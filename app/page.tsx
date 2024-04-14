@@ -222,7 +222,7 @@ export default function Page() {
                   index={index}
                   key={`llm-response-${index}`}
                 />
-                <DataStreamRenderer llmResponseString={llmResponseString} llmResponseEnd={llmResponseEnd} />
+                <DataStreamRenderer llmResponseString={llmResponseString} />
         {message.finalResults && (
             <div className="flex flex-col">
                 <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}
