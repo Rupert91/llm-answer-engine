@@ -16,7 +16,7 @@ import LLMResponseComponent from '@/components/answer/LLMResponseComponent';
 import ImagesComponent from '@/components/answer/ImagesComponent';
 import VideosComponent from '@/components/answer/VideosComponent';
 import FollowUpComponent from '@/components/answer/FollowUpComponent';
-import NewsList from '@/components/answer/NewsList';
+import DataStreamRenderer from '@/components/answer/NewsList';
 // 2. Set up types
 interface SearchResult {
   favicon: string;
@@ -81,6 +81,9 @@ export default function Page() {
   const [messages, setMessages] = useState<Message[]>([]);
   // 6. Set up state for the CURRENT LLM response (for displaying in the UI while streaming)
   const [currentLlmResponse, setCurrentLlmResponse] = useState('');
+  const [llmResponseString, setLlmResponseString] = useState<string>("");
+  const [llmResponseEnd, setLlmResponseEnd] = useState<boolean>(false);
+
   // 7. Set up handler for when the user clicks on the follow up button
   const handleFollowUpClick = useCallback(async (question: string) => {
     setCurrentLlmResponse('');
@@ -219,7 +222,7 @@ export default function Page() {
                   index={index}
                   key={`llm-response-${index}`}
                 />
-                <NewsList llmResponse={message.content}/>
+                <DataStreamRenderer llmResponseString={llmResponseString} llmResponseEnd={llmResponseEnd} />
         {message.finalResults && (
             <div className="flex flex-col">
                 <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}

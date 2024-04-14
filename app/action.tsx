@@ -479,27 +479,15 @@ async function myAction(userMessage: string): Promise<any> {
           Please ensure that your sorting algorithm takes into account the detailed content of each source.`
       },        
       {
-        role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources . Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+        role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
       },        
         ], stream: true, model: config.inferenceModel
     });
 
-    let jsonData = '';  // 初始化一个空字符串来累积 JSON 数据
-
     for await (const chunk of chatCompletion) {
-      if (chunk.choices[0].delta) {
-        jsonData += chunk.choices[0].delta.content;  // 累积数据
-      }
-      if (chunk.choices[0].finish_reason === "stop") {
-        // 检测到数据流结束，尝试最终解析
-        try {
-          const completeData = JSON.parse(jsonData); // 尝试解析 JSON
-          streamable.update({ 'llmResponse': completeData });
-        } catch (error) {
-          console.error("Failed to parse JSON:", error);
-          // 处理错误，例如可以通知用户数据解析失败
-          streamable.update({ 'llmResponseError': 'Data parsing failed' });
-        }
+      if (chunk.choices[0].delta && chunk.choices[0].finish_reason !== "stop") {
+        streamable.update({ 'llmResponse': chunk.choices[0].delta.content });
+      } else if (chunk.choices[0].finish_reason === "stop") {
         streamable.update({ 'llmResponseEnd': true });
         break;
       }
