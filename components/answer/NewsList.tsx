@@ -1,59 +1,55 @@
 import React, { useState, useEffect } from 'react';
 
-// 定义单个数据项的接口
-interface DataItem {
-    title: string;
+interface NewsItem {
     position: number;
-    snippet: string;
+    title: string;
     link: string;
-    reason: string;
-  }
-  
-  // 定义组件props的接口
-  interface DataStreamRendererProps {
-    llmResponseString: string;
-    llmResponseEnd: boolean;
-  }
-  
+    snippet: string;
+    relevance_score: number;
+    Reason: string;
+    content_depth: string;
+    accuracy_score: string;
+}
 
-// DataStreamRenderer 组件
-const DataStreamRenderer: React.FC<DataStreamRendererProps> = ({ llmResponseString, llmResponseEnd }) => {
-    const [data, setData] = useState<DataItem[]>([]);
-    const [isComplete, setIsComplete] = useState(false);
-  
-    // 当接收到llmResponseEnd信号时，尝试解析数据
+interface NewsListProps {
+    llmResponseString: string;
+}
+
+const NewsList: React.FC<NewsListProps> = ({ llmResponseString }) => {
+    const [finalResults, setFinalResults] = useState<NewsItem[]>([]);
+
     useEffect(() => {
-      if (llmResponseEnd) {
+        // Find the index of the actual JSON array start
+        const startIndex = llmResponseString.indexOf('[');
+        const cleanJson = llmResponseString.substring(startIndex);
+
         try {
-          const parsedData = JSON.parse(llmResponseString) as DataItem[];
-          setData(parsedData);
-          setIsComplete(true);
+            const parsedData = JSON.parse(cleanJson) as NewsItem[];
+            setFinalResults(parsedData);
         } catch (error) {
-          console.error("Failed to parse JSON:", error);
+            console.error('Error parsing JSON:', error);
+            setFinalResults([]); // Reset on error
         }
-      }
-    }, [llmResponseString, llmResponseEnd]);
-  
-    // 渲染数据
+    }, [llmResponseString]);
+
     return (
-      <div>
-        <h1>Data Stream Results</h1>
-        {isComplete ? (
-          <ul>
-            {data.map((item, index) => (
-              <li key={index}>
-                <h2>{item.title} (Position: {item.position})</h2>
-                <p>{item.snippet}</p>
-                <a href={item.link} target="_blank" rel="noopener noreferrer">Read More</a>
-                <p><strong>Reason:</strong> {item.reason}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Loading data...</p>
-        )}
-      </div>
+        <div>
+            <h1>News List</h1>
+            <ul>
+                {finalResults.map((item, index) => (
+                    <li key={index}>
+                        <h2>{item.title} (Position: {item.position})</h2>
+                        <a href={item.link} target="_blank" rel="noopener noreferrer">Read more</a>
+                        <p>{item.snippet}</p>
+                        <strong>Relevance Score:</strong> {item.relevance_score}<br />
+                        <strong>Reason:</strong> {item.Reason}<br />
+                        <strong>Content Depth:</strong> {item.content_depth}<br />
+                        <strong>Accuracy Score:</strong> {item.accuracy_score}
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
-  }
-  
-  export default DataStreamRenderer;
+}
+
+export default NewsList;
