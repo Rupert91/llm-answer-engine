@@ -480,7 +480,7 @@ async function myAction(userMessage: string): Promise<any> {
             Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
         },        
         {
-          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.Please format your response as a JSON object.`
         },        
         ], stream: true, model: config.inferenceModel
     });
