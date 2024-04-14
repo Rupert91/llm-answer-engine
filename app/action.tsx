@@ -467,26 +467,39 @@ async function myAction(userMessage: string): Promise<any> {
           Each result in the 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided. If any properties are missing from a source, represent them with an empty string (\"\"). Here is an example of what an item in 'finalResults' might look like:
           [
             {
-              \"position\": 1,
-              \"title\": \"Investing Explained: Types of Investments and How To Get Started\",
-              \"link\": \"https://www.investopedia.com/terms/i/investing.asp\",
-              \"snippet\": \"This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.\",
-              \"relevance_score\": 0.95,
-              \"Reason\": \"This result is ranked highest due to its direct address of the query's topic, offering detailed content that aligns closely with the user's search intent.\"
+              "position": 1,
+              "title": "Investing Explained: Types of Investments and How To Get Started",
+              "link": "https://www.investopedia.com/terms/i/investing.asp",
+              "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
+              "relevance_score": 0.95,
+              "Reason": "This result is ranked highest due to its direct address of the query's topic, offering detailed content that aligns closely with the user's search intent."
             }
             // More intelligently sorted results...
           ],
-          Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
+          Please ensure that your sorting algorithm takes into account the detailed content of each source.`
       },        
       {
         role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources . Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
       },        
         ], stream: true, model: config.inferenceModel
     });
+
+    let jsonData = '';  // 初始化一个空字符串来累积 JSON 数据
+
     for await (const chunk of chatCompletion) {
-      if (chunk.choices[0].delta && chunk.choices[0].finish_reason !== "stop") {
-        streamable.update({ 'llmResponse': chunk.choices[0].delta.content });
-      } else if (chunk.choices[0].finish_reason === "stop") {
+      if (chunk.choices[0].delta) {
+        jsonData += chunk.choices[0].delta.content;  // 累积数据
+      }
+      if (chunk.choices[0].finish_reason === "stop") {
+        // 检测到数据流结束，尝试最终解析
+        try {
+          const completeData = JSON.parse(jsonData); // 尝试解析 JSON
+          streamable.update({ 'llmResponse': completeData });
+        } catch (error) {
+          console.error("Failed to parse JSON:", error);
+          // 处理错误，例如可以通知用户数据解析失败
+          streamable.update({ 'llmResponseError': 'Data parsing failed' });
+        }
         streamable.update({ 'llmResponseEnd': true });
         break;
       }
