@@ -481,8 +481,10 @@ async function myAction(userMessage: string): Promise<any> {
         },        
         {
           role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
-        },        
-        ], stream: true, model: config.inferenceModel
+        },   
+        ], 
+        response_format: { type: "json_object" },     
+        stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
       if (chunk.choices[0].delta && chunk.choices[0].finish_reason !== "stop") {
