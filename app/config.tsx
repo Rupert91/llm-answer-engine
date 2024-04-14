@@ -13,6 +13,16 @@ export const config = {
     textChunkSize: 1000, // Recommended to decrease for Ollama
     textChunkOverlap: 400, // Recommended to decrease for Ollama
     numberOfSimilarityResults: 4, // Numbher of similarity results to return per page
-    numberOfPagesToScan: 12, // Recommended to decrease for Ollama
+    numberOfPagesToScan: 9, // Recommended to decrease for Ollama
     nonOllamaBaseURL: 'https://api.groq.com/openai/v1', //Groq: https://api.groq.com/openai/v1 // OpenAI: https://api.openai.com/v1 
 };
+
+
+
+
+
+
+
+
+
+
