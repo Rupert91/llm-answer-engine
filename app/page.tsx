@@ -16,6 +16,7 @@ import LLMResponseComponent from '@/components/answer/LLMResponseComponent';
 import ImagesComponent from '@/components/answer/ImagesComponent';
 import VideosComponent from '@/components/answer/VideosComponent';
 import FollowUpComponent from '@/components/answer/FollowUpComponent';
+import NewsList from '@/components/answer/NewsList';
 // 2. Set up types
 interface SearchResult {
   favicon: string;
@@ -217,6 +218,7 @@ export default function Page() {
                   index={index}
                   key={`llm-response-${index}`}
                 />
+                <NewsList llmResponse={message.content}/>
         {message.finalResults && (
             <div className="flex flex-col">
                 <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}
