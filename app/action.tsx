@@ -460,27 +460,26 @@ async function myAction(userMessage: string): Promise<any> {
       [{
         "role": "system",
         "content": `
-          - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
-          Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
-          Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided.
-          If any properties are missing from a source, represent them with an empty string ("").
-      
-          Here is an example of what an item in 'finalResults' might look like:
+          - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}. You need to sort these results based on the following criteria:
+          - **Timeliness**: This criterion assesses the freshness and frequency of updates of the information. Content that involves the latest events, developments, or data will receive higher priority.
+          - **Authority**: This evaluates the credibility and professional level of the information sources. Prefer content from well-known news organizations, government official websites, academic research, or industry leaders.
+          - **Practicality**: Focus on how well the content addresses the user's query, the comprehensiveness of the information, its applicability, operational strength, and whether it is well-supported by evidence. Prioritize results that offer detailed steps, thorough explanations, case studies, or predictions of outcomes.
+          Each result in the 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided. If any properties are missing from a source, represent them with an empty string (\"\"). Here is an example of what an item in 'finalResults' might look like:
           [
             {
-              "position": 1,
-              "title": "Investing Explained: Types of Investments and How To Get Started",
-              "link": "https://www.investopedia.com/terms/i/investing.asp",
-              "snippet": "This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.",
-              "relevance_score": 0.95,
-              "Reason": "This result is ranked highest due to its direct address of the query's topic, offering detailed content that aligns closely with the user's search intent."
-            },
+              \"position\": 1,
+              \"title\": \"Investing Explained: Types of Investments and How To Get Started\",
+              \"link\": \"https://www.investopedia.com/terms/i/investing.asp\",
+              \"snippet\": \"This article provides a comprehensive overview of the types of investments available today, helping beginners understand where they might start.\",
+              \"relevance_score\": 0.95,
+              \"Reason\": \"This result is ranked highest due to its direct address of the query's topic, offering detailed content that aligns closely with the user's search intent.\"
+            }
             // More intelligently sorted results...
-          ]
+          ],
           Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
       },        
       {
-        role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+        role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources . Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
       },        
         ], stream: true, model: config.inferenceModel
     });
