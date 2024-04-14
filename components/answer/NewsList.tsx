@@ -7,6 +7,8 @@ interface NewsItem {
     snippet: string;
     relevance_score: number;
     Reason: string;
+    content_depth: string;
+    accuracy_score: string;
 }
 
 interface NewsListProps {
@@ -17,8 +19,12 @@ const NewsList: React.FC<NewsListProps> = ({ llmResponse }) => {
     const [finalResults, setFinalResults] = useState<NewsItem[]>([]);
 
     useEffect(() => {
+        // Find the index of the actual JSON array start
+        const startIndex = llmResponse.indexOf('[');
+        const cleanJson = llmResponse.substring(startIndex);
+
         try {
-            const parsedData = JSON.parse(llmResponse) as NewsItem[];
+            const parsedData = JSON.parse(cleanJson) as NewsItem[];
             setFinalResults(parsedData);
         } catch (error) {
             console.error('Error parsing JSON:', error);
@@ -36,7 +42,9 @@ const NewsList: React.FC<NewsListProps> = ({ llmResponse }) => {
                         <a href={item.link} target="_blank" rel="noopener noreferrer">Read more</a>
                         <p>{item.snippet}</p>
                         <strong>Relevance Score:</strong> {item.relevance_score}<br />
-                        <strong>Reason:</strong> {item.Reason}
+                        <strong>Reason:</strong> {item.Reason}<br />
+                        <strong>Content Depth:</strong> {item.content_depth}<br />
+                        <strong>Accuracy Score:</strong> {item.accuracy_score}
                     </li>
                 ))}
             </ul>
@@ -45,4 +53,3 @@ const NewsList: React.FC<NewsListProps> = ({ llmResponse }) => {
 }
 
 export default NewsList;
-

@@ -44,7 +44,6 @@ const LLMResponseComponent = ({ llmResponse, currentLlmResponse, index }: LLMRes
                     </div>
                     <div className="dark:text-gray-300 text-gray-800">
                         <Markdown>{llmResponse}</Markdown>
-                        <NewsList llmResponse={llmResponse}></NewsList>
                     </div>
                 </div>
             ) : (
