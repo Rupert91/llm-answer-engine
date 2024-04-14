@@ -7,6 +7,7 @@ interface LLMResponseComponentProps {
 
 // 2. Import the 'Markdown' component from 'react-markdown'
 import Markdown from 'react-markdown';
+import NewsList from './NewsList';
 
 
 // 3. Define the 'StreamingComponent' functional component that renders the 'currentLlmResponse'
@@ -43,6 +44,7 @@ const LLMResponseComponent = ({ llmResponse, currentLlmResponse, index }: LLMRes
                     </div>
                     <div className="dark:text-gray-300 text-gray-800">
                         <Markdown>{llmResponse}</Markdown>
+                        <NewsList llmResponse={llmResponse}></NewsList>
                     </div>
                 </div>
             ) : (
