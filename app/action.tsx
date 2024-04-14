@@ -457,31 +457,31 @@ async function myAction(userMessage: string): Promise<any> {
     const startTimeChatCompletion = Date.now();
     const chatCompletion = await openai.chat.completions.create({
       messages:
-        [{
-          "role": "system",
-          "content": `
-            - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
-            Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
-            Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided.
-            If any properties are missing from a source, represent them with an empty string ("").
-        
-            Here is an example of what an item in 'finalResults' might look like:
-            [
-              {
-                "position": 1,
-                "title": "Investing Explained: Types of Investments and How To Get Started",
-                "link": "https://www.investopedia.com/terms/i/investing.asp",
-                "snippet": "abstract",
-                "relevance_score": 0.95,
-                "Reason": "why recommend it"
-              },
-              // More intelligently sorted results...
-            ]
-            Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
-        },        
-        {
-          role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
-        },   
+      [{
+        "role": "system",
+        "content": `
+          - As an advanced AI, you are tasked with analyzing and organizing a list of search results based on their relevance to the user's provided query. The search results are presented as follows: ${JSON.stringify(sources)}.
+          Your primary objective is not merely to sort these results by their original order, but to dynamically rank them according to how well they match the user's query on various dimensions such as relevance, content depth, and accuracy.
+          Each result in 'finalResults' must be a structured JSON object that includes the following properties: 'title', 'link', 'snippet', 'relevance_score', 'position', and a 'Reason' that explains why each result was ranked as it was based on an intelligent analysis of its content and relevance to the query provided.
+          If any properties are missing from a source, represent them with an empty string ("").
+      
+          Here is an example of what an item in 'finalResults' might look like:
+          [
+            {
+              "position": 1,
+              "title": "Investing Explained: Types of Investments and How To Get Started",
+              "link": "https://www.investopedia.com/terms/i/investing.asp",
+              "snippet": "abstract",
+              "relevance_score": 0.95,
+              "Reason": "why recommend it"
+            },
+            // More intelligently sorted results...
+          ]
+          Please ensure that your sorting algorithm takes into account the detailed content of each source, rather than relying on a simple sequential order.`
+      },        
+      {
+        role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources by relevance, content depth, and accuracy. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+      },        
         ], stream: true, model: config.inferenceModel
     });
     for await (const chunk of chatCompletion) {
