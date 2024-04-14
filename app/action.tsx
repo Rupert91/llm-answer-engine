@@ -1,6 +1,5 @@
 // 1. Import dependencies
 'use action';
-
 import { createAI, createStreamableValue } from 'ai/rsc';
 import { OpenAI } from 'openai';
 import cheerio from 'cheerio';
@@ -66,7 +65,8 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
       messages: [
         {
           role: "system",
-          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results(If the user does not specify the number of results, the default should be set to 3). Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
+          content: `Your task is to analyze the user query and generate a response detailing the query's main topic, the preferred media type for the results(e.g articles/podcast/social media), and the number of desired results. 
+          Please format your response as a JSON object. For example, your response should look like this: "{\\"topic\\": \\"Climate Change\\", \\"mediaType\\": \\"Articles\\", \\"numResults\\": 5}". Note: Ensure to return 'numResults' as a number, not a string.`
         },
         {
           role: "user",
@@ -74,13 +74,11 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
         }
       ],
     });
-
     // 解析模型的响应
     const jsonString = response.choices?.[0]?.message?.content?.trim();
     if (!jsonString) {
       throw new Error("No response from OpenAI");
     }
-
     // 尝试解析响应字符串为JSON
     let jsonResponse;
     try {
@@ -89,14 +87,12 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
       console.error('Error parsing JSON response:', parseError);
       throw new Error("Failed to parse JSON response from OpenAI");
     }
-
     // 验证解析后的对象是否包含必要的字段
     if (typeof jsonResponse.topic !== 'string' ||
         typeof jsonResponse.mediaType !== 'string' ||
         typeof jsonResponse.numResults !== 'number') {
       throw new Error("API response format is invalid or missing required fields");
     }
-
     // 构建并返回ParsedQuery对象
     const pQuery: ParsedQuery = {
       topic: jsonResponse.topic,
@@ -110,7 +106,6 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
     throw error;
   }
 }
-
 // 4. Fetch search results from Brave Search API
 async function getSources(Pquery: ParsedQuery, numberOfPagesToScan = config.numberOfPagesToScan): Promise<SearchResult[]> {
   try {
