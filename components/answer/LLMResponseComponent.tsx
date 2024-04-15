@@ -45,6 +45,10 @@ const LLMResponseComponent = ({
   // 5. Check if 'llmResponse' is not empty
   const hasLlmResponse = llmResponse && llmResponse.trim().length > 0;
 
+  let arrayRegex = /$$\s*(\{[^{}]*\}\s*,?\s*)+$$/g;
+let arrayMatch = llmResponse.match(arrayRegex);
+let jsonArray =  arrayMatch?JSON.parse(arrayMatch[0]):[];
+
   return (
     <>
       {hasLlmResponse ? (
@@ -63,9 +67,9 @@ const LLMResponseComponent = ({
           </div>
           <div className="dark:text-gray-300 text-gray-800">
             <Markdown>{llmResponse}</Markdown>
-            {/* {llmResponse.map((item: any) => {
+            {jsonArray.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
-            })} */}
+            })}
           </div>
         </div>
       ) : (
