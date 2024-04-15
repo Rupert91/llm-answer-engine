@@ -48,7 +48,7 @@ const LLMResponseComponent = ({
   // 5. Check if 'llmResponse' is not empty
   const hasLlmResponse = llmResponse && llmResponse.trim().length > 0;
 
-  const newLlmResponse: any = JSON.parse(llmResponse);
+  const newLlmResponse: any = llmResponseEnd ? JSON.parse(llmResponse): [];
 
   if (Array.isArray(newLlmResponse)) {
     console.log("data是一个数组");
