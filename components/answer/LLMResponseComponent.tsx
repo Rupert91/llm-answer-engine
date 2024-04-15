@@ -2,6 +2,7 @@
 interface LLMResponseComponentProps {
   llmResponse: string;
   currentLlmResponse: string;
+  llmResponseEnd:boolean;
   index: number;
 }
 
@@ -39,6 +40,7 @@ const StreamingComponent = ({
 const LLMResponseComponent = ({
   llmResponse,
   currentLlmResponse,
+  llmResponseEnd,
   index,
 }: LLMResponseComponentProps) => {
   console.log("llmResponse", llmResponse);
@@ -69,9 +71,12 @@ console.log("jsonArray", jsonArray);
           </div>
           <div className="dark:text-gray-300 text-gray-800">
             <Markdown>{llmResponse}</Markdown>
-            {newLlmResponse.map((item: any) => {
+            {llmResponseEnd && newLlmResponse.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
             })}
+            {/* {newLlmResponse.map((item: any) => {
+              return <div key={item.title}>{item.title}</div>;
+            })} */}
           </div>
         </div>
       ) : (
