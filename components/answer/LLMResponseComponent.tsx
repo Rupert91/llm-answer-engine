@@ -44,6 +44,7 @@ const LLMResponseComponent = ({
   index,
 }: LLMResponseComponentProps) => {
   console.log("llmResponse", llmResponse);
+  console.log("llmResponseEnd", llmResponseEnd);
   // 5. Check if 'llmResponse' is not empty
   const hasLlmResponse = llmResponse && llmResponse.trim().length > 0;
 
@@ -74,6 +75,7 @@ console.log("jsonArray", jsonArray);
             {llmResponseEnd && newLlmResponse.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
             })}
+        
             {/* {newLlmResponse.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
             })} */}
