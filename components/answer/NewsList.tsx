@@ -16,15 +16,16 @@ interface NewsListProps {
 }
 
 const NewsList: React.FC<NewsListProps> = ({ llmResponseString }) => {
-    const [finalResults, setFinalResults] = useState<NewsItem[]>([]);
+    const [finalResults, setFinalResults] = useState<any>([]);
 
     useEffect(() => {
         // Find the index of the actual JSON array start
         const startIndex = llmResponseString.indexOf('[');
         const cleanJson = llmResponseString.substring(startIndex);
+        console.log("cleanJson",cleanJson)
 
         try {
-            const parsedData = JSON.parse(cleanJson) as NewsItem[];
+            const parsedData = cleanJson  // as NewsItem[];
             setFinalResults(parsedData);
         } catch (error) {
             console.error('Error parsing JSON:', error);

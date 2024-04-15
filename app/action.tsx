@@ -371,9 +371,8 @@ const sortAndFilterResults = async (sources: SearchResult[]): Promise<finalResul
           content: `Here are the search results. The original user query is "{(message)}". Please sort them according to the rules.`,
         },
       ],
-      response_format: { type: "json_object" },
+      response_format: { type: "text" },
     });
-
     // Return the entire response for external processing
     const responseString = response.choices?.[0]?.message?.content?.trim();
     if (!responseString) {
@@ -492,7 +491,6 @@ async function myAction(userMessage: string): Promise<any> {
         break;
       }
     }
-  // 在这里，finalResults 已经是包含了所需数据的数组
     const endTimeChatCompletion = Date.now();
     console.log(`聊天完成处理耗时：${endTimeChatCompletion - startTimeChatCompletion}ms`);
     const chatTime = (endTimeChatCompletion - startTimeChatCompletion) / 1000;
