@@ -1,22 +1,26 @@
-'use client';
+"use client";
 // 1. Import Dependencies
-import { FormEvent, useEffect, useRef, useState, useCallback } from 'react';
-import { useActions, readStreamableValue } from 'ai/rsc';
-import { type AI } from './action';
-import { ChatScrollAnchor } from '@/lib/hooks/chat-scroll-anchor';
-import Textarea from 'react-textarea-autosize';
-import { useEnterSubmit } from '@/lib/hooks/use-enter-submit';
-import { Tooltip, TooltipContent, TooltipTrigger, } from '@/components/ui/tooltip';
-import { IconArrowElbow } from '@/components/ui/icons';
-import { Button } from '@/components/ui/button';
-// Custom components 
-import SearchResultsComponent from '@/components/answer/SearchResultsComponent';
-import UserMessageComponent from '@/components/answer/UserMessageComponent';
-import LLMResponseComponent from '@/components/answer/LLMResponseComponent';
-import ImagesComponent from '@/components/answer/ImagesComponent';
-import VideosComponent from '@/components/answer/VideosComponent';
-import FollowUpComponent from '@/components/answer/FollowUpComponent';
-import DataStreamRenderer from '@/components/answer/NewsList';
+import { FormEvent, useEffect, useRef, useState, useCallback } from "react";
+import { useActions, readStreamableValue } from "ai/rsc";
+import { type AI } from "./action";
+import { ChatScrollAnchor } from "@/lib/hooks/chat-scroll-anchor";
+import Textarea from "react-textarea-autosize";
+import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { IconArrowElbow } from "@/components/ui/icons";
+import { Button } from "@/components/ui/button";
+// Custom components
+import SearchResultsComponent from "@/components/answer/SearchResultsComponent";
+import UserMessageComponent from "@/components/answer/UserMessageComponent";
+import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
+import ImagesComponent from "@/components/answer/ImagesComponent";
+import VideosComponent from "@/components/answer/VideosComponent";
+import FollowUpComponent from "@/components/answer/FollowUpComponent";
+import DataStreamRenderer from "@/components/answer/NewsList";
 // 2. Set up types
 interface SearchResult {
   favicon: string;
@@ -33,12 +37,12 @@ interface Message {
   finalResults?: finalResults[];
   isStreaming: boolean;
   searchResults?: SearchResult[];
-  numResults:any;
-  processedQuery:any;
-  parseQueryTime:any;
-  searchTime:any;
-  chatTime:any;
-  executionTime:string;
+  numResults: any;
+  processedQuery: any;
+  parseQueryTime: any;
+  searchTime: any;
+  chatTime: any;
+  executionTime: string;
 }
 interface StreamMessage {
   searchResults?: any;
@@ -48,12 +52,12 @@ interface StreamMessage {
   images?: any;
   videos?: any;
   finalResults?: any;
-  numResults?:any;
-  processedQuery:any;
-  parseQueryTime:any;
-  searchTime:any;
-  chatTime:any;
-  executionTime:string;
+  numResults?: any;
+  processedQuery: any;
+  parseQueryTime: any;
+  searchTime: any;
+  chatTime: any;
+  executionTime: string;
 }
 interface Image {
   link: string;
@@ -67,7 +71,7 @@ interface finalResults {
   link: string;
   snippet: string;
   position: number;
-};
+}
 export default function Page() {
   const [isInputPage, setIsInputPage] = useState(true);
 
@@ -76,26 +80,26 @@ export default function Page() {
   // 4. Set up form submission handling
   const { formRef, onKeyDown } = useEnterSubmit();
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   // 5. Set up state for the messages
   const [messages, setMessages] = useState<Message[]>([]);
   // 6. Set up state for the CURRENT LLM response (for displaying in the UI while streaming)
-  const [currentLlmResponse, setCurrentLlmResponse] = useState('');
+  const [currentLlmResponse, setCurrentLlmResponse] = useState("");
   const [llmResponseString, setLlmResponseString] = useState<string>("");
   const [llmResponseEnd, setLlmResponseEnd] = useState<boolean>(false);
 
   // 7. Set up handler for when the user clicks on the follow up button
   const handleFollowUpClick = useCallback(async (question: string) => {
-    setCurrentLlmResponse('');
+    setCurrentLlmResponse("");
     await handleUserMessageSubmission(question);
   }, []);
   // 8. For the form submission, we need to set up a handler that will be called when the user submits the form
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === '/') {
+      if (e.key === "/") {
         if (
           e.target &&
-          ['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).nodeName)
+          ["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).nodeName)
         ) {
           return;
         }
@@ -106,9 +110,9 @@ export default function Page() {
         }
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [inputRef]);
   // 9. Set up handler for when a submission is made, which will call the myAction function
@@ -116,35 +120,39 @@ export default function Page() {
     if (!message) return;
     await handleUserMessageSubmission(message);
   };
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleFormSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
     const messageToSend = inputValue.trim();
     if (!messageToSend) return;
-    setInputValue('');
+    setInputValue("");
     await handleSubmit(messageToSend);
   };
-  const handleUserMessageSubmission = async (userMessage: string): Promise<void> => {
-    console.log('handleUserMessageSubmission', userMessage);
+  const handleUserMessageSubmission = async (
+    userMessage: string
+  ): Promise<void> => {
+    console.log("handleUserMessageSubmission", userMessage);
     const newMessageId = Date.now();
     const newMessage = {
       id: newMessageId,
-      type: 'userMessage',
+      type: "userMessage",
       userMessage: userMessage,
-      content: '',
+      content: "",
       images: [],
       videos: [],
-      finalResults: [] as finalResults[],  // 设置为 FinalResult 数组
+      finalResults: [] as finalResults[], // 设置为 FinalResult 数组
       isStreaming: true,
-      numResults:'',
+      numResults: "",
       searchResults: [] as SearchResult[],
-      processedQuery:[],
-      executionTime:'',
-      parseQueryTime:'',
-      searchTime:'',
-      chatTime:'',
+      processedQuery: [],
+      executionTime: "",
+      parseQueryTime: "",
+      searchTime: "",
+      chatTime: "",
     };
-    setMessages(prevMessages => [...prevMessages, newMessage]);
-    
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
     let lastAppendedResponse = "";
     try {
       const streamableValue = await myAction(userMessage);
@@ -153,15 +161,21 @@ export default function Page() {
         const typedMessage = message as StreamMessage;
         setMessages((prevMessages) => {
           const messagesCopy = [...prevMessages];
-          const messageIndex = messagesCopy.findIndex(msg => msg.id === newMessageId);
+          const messageIndex = messagesCopy.findIndex(
+            (msg) => msg.id === newMessageId
+          );
           if (messageIndex !== -1) {
             const currentMessage = messagesCopy[messageIndex];
-            if (typedMessage.llmResponse && typedMessage.llmResponse !== lastAppendedResponse) {
+            if (
+              typedMessage.llmResponse &&
+              typedMessage.llmResponse !== lastAppendedResponse
+            ) {
               currentMessage.content += typedMessage.llmResponse;
               lastAppendedResponse = typedMessage.llmResponse; // Update last appended response
             }
             if (typedMessage.llmResponseEnd) {
               currentMessage.isStreaming = false;
+              setLlmResponseEnd(true);
             }
             if (typedMessage.processedQuery) {
               currentMessage.processedQuery = typedMessage.processedQuery;
@@ -176,7 +190,7 @@ export default function Page() {
               currentMessage.videos = [...typedMessage.videos];
             }
             if (typedMessage.finalResults) {
-              currentMessage.finalResults =[typedMessage.finalResults];
+              currentMessage.finalResults = [typedMessage.finalResults];
             }
             if (typedMessage.numResults) {
               currentMessage.numResults = typedMessage.numResults;
@@ -213,31 +227,50 @@ export default function Page() {
             <div key={`message-${index}`} className="flex flex-col md:flex-row">
               <div className="w-full md:w-3/4 md:pr-2">
                 {message.searchResults && (
-                  <SearchResultsComponent key={`searchResults-${index}`} searchResults={message.searchResults} />
+                  <SearchResultsComponent
+                    key={`searchResults-${index}`}
+                    searchResults={message.searchResults}
+                  />
                 )}
-                {message.type === 'userMessage' && <UserMessageComponent message={message.userMessage} />}
+                {message.type === "userMessage" && (
+                  <UserMessageComponent message={message.userMessage} />
+                )}
                 <LLMResponseComponent
                   llmResponse={message.content}
                   currentLlmResponse={currentLlmResponse}
+                  llmResponseEnd={llmResponseEnd}
                   index={index}
                   key={`llm-response-${index}`}
                 />
                 <DataStreamRenderer llmResponseString={llmResponseString} />
-        {message.finalResults && (
-            <div className="flex flex-col">
-                <h2>Showing {message.numResults} Results</h2> {/* 显示结果数量 */}
-                <ul>
-                    {message.finalResults.map((result, index) => (
+                {message.finalResults && (
+                  <div className="flex flex-col">
+                    <h2>Showing {message.numResults} Results</h2>{" "}
+                    {/* 显示结果数量 */}
+                    <ul>
+                      {message.finalResults.map((result, index) => (
                         <li key={index} className="mb-2">
-                            <h4>{result.title}</h4> {/* 假设每个结果有标题 */}
-                            <p>{result.snippet}</p> {/* 显示结果摘要 */}
-                            <a href={result.link} target="_blank" rel="noopener noreferrer">Read More</a> {/* 链接到更多内容 */}
-                            <button onClick={() => handleFollowUpClick(result.link)}>Follow Up</button> {/* 处理点击事件 */}
+                          <h4>{result.title}</h4> {/* 假设每个结果有标题 */}
+                          <p>{result.snippet}</p> {/* 显示结果摘要 */}
+                          <a
+                            href={result.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Read More
+                          </a>{" "}
+                          {/* 链接到更多内容 */}
+                          <button
+                            onClick={() => handleFollowUpClick(result.link)}
+                          >
+                            Follow Up
+                          </button>{" "}
+                          {/* 处理点击事件 */}
                         </li>
-                    ))}
-                </ul>
-            </div>
-        )}
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
                 <p>Execution Time: {message.executionTime}</p>
@@ -246,8 +279,18 @@ export default function Page() {
                 <p>Chat Time: {message.chatTime}</p>
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
-                {message.videos && <VideosComponent key={`videos-${index}`} videos={message.videos} />}
-                {message.images && <ImagesComponent key={`images-${index}`} images={message.images} />}
+                {message.videos && (
+                  <VideosComponent
+                    key={`videos-${index}`}
+                    videos={message.videos}
+                  />
+                )}
+                {message.images && (
+                  <ImagesComponent
+                    key={`images-${index}`}
+                    images={message.images}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -264,16 +307,15 @@ export default function Page() {
               onSubmit={async (e: FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
                 handleFormSubmit(e);
-                setCurrentLlmResponse('');
+                setCurrentLlmResponse("");
                 if (window.innerWidth < 600) {
-                  (e.target as HTMLFormElement)['message']?.blur();
+                  (e.target as HTMLFormElement)["message"]?.blur();
                 }
                 const value = inputValue.trim();
-                setInputValue('');
+                setInputValue("");
                 if (!value) return;
               }}
             >
-            
               <div className="relative flex flex-col w-full overflow-hidden max-h-60 grow dark:bg-slate-800 bg-gray-100 rounded-full sm:border sm:px-2">
                 <Textarea
                   ref={inputRef}
@@ -293,7 +335,11 @@ export default function Page() {
                 <div className="absolute right-0 top-4 sm:right-4">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button type="submit" size="icon" disabled={inputValue === ''}>
+                      <Button
+                        type="submit"
+                        size="icon"
+                        disabled={inputValue === ""}
+                      >
                         <IconArrowElbow />
                         <span className="sr-only">Send message</span>
                       </Button>
@@ -308,4 +354,4 @@ export default function Page() {
       </div>
     </div>
   );
-};
+}
