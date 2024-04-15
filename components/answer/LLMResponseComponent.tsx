@@ -50,10 +50,13 @@ const LLMResponseComponent = ({
 
   const newLlmResponse: any =  llmResponse
 
-  let arrayRegex = /$$\s*(\{[^{}]*\}\s*,?\s*)+$$/g;
-let arrayMatch = llmResponse.match(arrayRegex);
-let jsonArray =  arrayMatch?JSON.parse(arrayMatch[0]):[];
-console.log("jsonArray", jsonArray);
+  if (Array.isArray(newLlmResponse)) {
+    console.log("data是一个数组");
+  } else {
+    console.log("data不是一个数组");
+  }
+
+console.log("newLlmResponse", newLlmResponse);
   return (
     <>
       {hasLlmResponse ? (
@@ -72,9 +75,9 @@ console.log("jsonArray", jsonArray);
           </div>
           <div className="dark:text-gray-300 text-gray-800">
             <Markdown>{llmResponse}</Markdown>
-            {llmResponseEnd && newLlmResponse.map((item: any) => {
+            {/* {llmResponseEnd && newLlmResponse.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
-            })}
+            })} */}
         
             {/* {newLlmResponse.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
