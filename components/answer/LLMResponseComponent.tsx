@@ -1,6 +1,6 @@
 // 1. Define the 'LLMResponseComponentProps' interface with properties for 'llmResponse', 'currentLlmResponse', and 'index'
 interface LLMResponseComponentProps {
-  llmResponse: any;
+  llmResponse: string;
   currentLlmResponse: string;
   index: number;
 }
@@ -13,6 +13,7 @@ import NewsList from "./NewsList";
 const StreamingComponent = ({
   currentLlmResponse,
 }: {
+
   currentLlmResponse: string;
 }) => {
   return (
@@ -61,10 +62,10 @@ const LLMResponseComponent = ({
             <img src="./groq.png" alt="groq logo" className="w-6 h-6" />
           </div>
           <div className="dark:text-gray-300 text-gray-800">
-            {/* <Markdown>{llmResponse}</Markdown> */}
-            {llmResponse.map((item: any) => {
+            <Markdown>{llmResponse}</Markdown>
+            {/* {llmResponse.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
-            })}
+            })} */}
           </div>
         </div>
       ) : (
