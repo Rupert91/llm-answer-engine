@@ -25,7 +25,7 @@ const NewsList: React.FC<NewsListProps> = ({ llmResponseString }) => {
         console.log("cleanJson",cleanJson)
 
         try {
-            const parsedData = cleanJson  // as NewsItem[];
+            const parsedData:any = []; //  cleanJson  // as NewsItem[];
             setFinalResults(parsedData);
         } catch (error) {
             console.error('Error parsing JSON:', error);
