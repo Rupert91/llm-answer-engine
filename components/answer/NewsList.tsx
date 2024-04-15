@@ -37,7 +37,7 @@ const NewsList: React.FC<NewsListProps> = ({ llmResponseString }) => {
         <div>
             <h1>News List</h1>
             <ul>
-                {finalResults.map((item, index) => (
+                {finalResults.map((item:any, index:any) => (
                     <li key={index}>
                         <h2>{item.title} (Position: {item.position})</h2>
                         <a href={item.link} target="_blank" rel="noopener noreferrer">Read more</a>
