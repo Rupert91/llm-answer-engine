@@ -41,11 +41,11 @@ const LLMResponseComponent = ({
   currentLlmResponse,
   index,
 }: LLMResponseComponentProps) => {
-//   console.log("llmResponse", llmResponse);
+  console.log("llmResponse", llmResponse);
   // 5. Check if 'llmResponse' is not empty
   const hasLlmResponse = llmResponse && llmResponse.trim().length > 0;
 
-  const newLlmResponse = JSON.parse(llmResponse)
+  const newLlmResponse: any =  llmResponse
 
   let arrayRegex = /$$\s*(\{[^{}]*\}\s*,?\s*)+$$/g;
 let arrayMatch = llmResponse.match(arrayRegex);
