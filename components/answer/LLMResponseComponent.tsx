@@ -29,6 +29,7 @@ const StreamingComponent = ({ currentLlmResponse }: { currentLlmResponse: string
 
 // 4. Define the 'LLMResponseComponent' functional component that takes 'llmResponse', 'currentLlmResponse', and 'index' as props
 const LLMResponseComponent = ({ llmResponse, currentLlmResponse, index }: LLMResponseComponentProps) => {
+    console.log('llmResponse',llmResponse)
     // 5. Check if 'llmResponse' is not empty
     const hasLlmResponse = llmResponse && llmResponse.trim().length > 0;
 
