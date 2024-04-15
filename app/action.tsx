@@ -478,7 +478,7 @@ async function myAction(userMessage: string): Promise<any> {
           Please ensure that your sorting algorithm takes into account the detailed content of each source.`
       },        
       {
-        role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources. Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.`
+        role: "user",   "content": `Based on the query "${JSON.stringify(filteredQuery)}", please sort all 9 sources. Only Output the sorted results in a JSON array named 'finalResults', ranked by relevance in descending order.Do not say other words,just JSON array.`
       },        
         ], stream: true, model: config.inferenceModel
     });
