@@ -222,9 +222,9 @@ export default function Page() {
     }
   };
   const [count, setCount] = useState(1);
-  function showMore(message:any) {
-    const {content, numResults} = message
-    const newLlmResponse = llmResponseEnd ? JSON.parse(content): []
+  function showMore(message: any) {
+    const { content, numResults } = message;
+    const newLlmResponse = llmResponseEnd ? JSON.parse(content) : [];
     if (newLlmResponse.length) {
       if (count * numResults < newLlmResponse.length) {
         setCount((count) => count + 1);
@@ -255,7 +255,7 @@ export default function Page() {
                 {message.finalResults && (
                   <div className="flex flex-col">
                     <div className="flex justify-between mt-2">
-                       {/* 显示结果数量 */}
+                      {/* 显示结果数量 */}
                       <h2>Showing {message.numResults} Results</h2>
                       <Button onClick={() => showMore(message)}>
                         View more
@@ -289,10 +289,10 @@ export default function Page() {
                   llmResponse={message.content}
                   currentLlmResponse={currentLlmResponse}
                   llmResponseEnd={llmResponseEnd}
-                  numCount = {count*3}
+                  numCount={count * message.numResults}
                   index={index}
                   key={`llm-response-${index}`}
-                />                
+                />
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
                 <p>Execution Time: {message.executionTime}</p>
