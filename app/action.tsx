@@ -117,7 +117,10 @@ async function parseUserQuery(message: string): Promise<ParsedQuery> {
 // 4. Fetch search results from Brave Search API
 async function getSources(Pquery: ParsedQuery, numberOfPagesToScan = config.numberOfPagesToScan): Promise<SearchResult[]> {
   try {
-    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(Pquery.topic)}&count=${numberOfPagesToScan}`, {
+    const topic = encodeURIComponent(Pquery.topic);
+    const mediaType = encodeURIComponent(Pquery.mediaType);
+    const queryString = `topic=${topic}&mediaType=${mediaType}`;
+    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${queryString}&count=${numberOfPagesToScan}`, {
       headers: {
         'Accept': 'application/json',
         'Accept-Encoding': 'gzip',
@@ -143,6 +146,37 @@ async function getSources(Pquery: ParsedQuery, numberOfPagesToScan = config.numb
     throw error;
   }
 }
+
+//4*.Fetch search results from Brave Search API
+// async function GooglegetSources(Pquery: ParsedQuery): Promise<SearchResult[]> {
+//   try {
+//     const startIndex = searchParams.start || "1";
+//     const response = await fetch(`https://www.googleapis.com/customsearch/v1?key=${process.env.GOOGLE_API_KEY}&cx=${process.env.GOOGLE_CSE_ID}&q=${encodeURIComponent(Pquery.topic)}&num=${numberOfResults}`, {
+//       headers: {
+//         'Accept': 'application/json'
+//       }
+//     });
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const jsonResponse = await response.json();
+//     if (!jsonResponse.items) {
+//       throw new Error('Invalid API response format');
+//     }
+//     const final = jsonResponse.items.map((item: any): SearchResult => ({
+//       title: item.title,
+//       link: item.link,
+//       snippet: item.snippet,
+//       favicon: item.pagemap?.cse_image[0]?.src || ''
+//     }));
+//     return final;
+//   } catch (error) {
+//     console.error('Error fetching search results:', error);
+//     throw error;
+//   }
+// }
+
+
 // 5. Fetch contents of top 10 search results
 async function get10BlueLinksContents(sources: SearchResult[]): Promise<ContentResult[]> {
   async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 1000): Promise<Response> {
