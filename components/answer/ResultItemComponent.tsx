@@ -45,9 +45,9 @@ const ResultItemComponent = ({
   return (
     <div
       onClick={() => window.open(item.link, "_blank")}
-      className="w-full mb-2 cursor-pointer p-2 bg-blue-200"
+      className="w-full mb-2 cursor-pointer p-2 bg-blue-100 border rounded-lg"
     >
-      <div className="w-full flex justify-between line-clamp-1 bg-blue-200">
+      <div className="w-full flex justify-between line-clamp-1 bg-blue-100 rounded-lg">
         <h1 className="font-bold flex-1">{item.title}</h1>
         <span
           className="text-xs text-gray-600 cursor-pointer"
