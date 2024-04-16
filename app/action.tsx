@@ -120,7 +120,7 @@ async function getSources(Pquery: ParsedQuery, numberOfPagesToScan = config.numb
     const topic = encodeURIComponent(Pquery.topic);
     const mediaType = encodeURIComponent(Pquery.mediaType);
     const queryString = `topic=${topic}&mediaType=${mediaType}`;
-    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${Pquery.mediaType}&count=${numberOfPagesToScan}`, {
+    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${queryString}&count=${numberOfPagesToScan}`, {
       headers: {
         'Accept': 'application/json',
         'Accept-Encoding': 'gzip',
