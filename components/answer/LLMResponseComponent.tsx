@@ -63,7 +63,7 @@ interface LLMResponseComponentProps {
       <>
         {hasLlmResponse ? (
           // 6. If 'llmResponse' is not empty, render a div with the 'Markdown' component
-          <div className="dark:bg-slate-800 bg-white shadow-lg rounded-lg mt-4">
+          <div className="dark:bg-slate-800 bg-white shadow-lg rounded-lg p-4 mt-4">
             <div className="flex items-center">
               <h2 className="text-lg font-semibold flex-grow dark:text-white text-black">
                 Answer
