@@ -255,11 +255,11 @@ export default function Page() {
                 )}
                 {message.finalResults && (
                   <div className="flex flex-col">
-                    <div className="flex justify-between mt-2 font-semibold">
+                    <div className="flex justify-between mt-4 font-semibold">
                       {/* 显示结果数量 */}
                       <h2>Showing {message.numResults} Results</h2>
                       <Button
-                        className="bg-blue-100 hover:bg-blue-200"
+                        className="bg-blue-100 hover:bg-blue-200 text-black font-semibold"
                         onClick={() => showMore(message)}
                       >
                         View more
