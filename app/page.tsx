@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { IconArrowElbow } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 // Custom components
 import SearchResultsComponent from "@/components/answer/SearchResultsComponent";
 import UserMessageComponent from "@/components/answer/UserMessageComponent";
@@ -20,7 +21,7 @@ import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
 import ImagesComponent from "@/components/answer/ImagesComponent";
 import VideosComponent from "@/components/answer/VideosComponent";
 import FollowUpComponent from "@/components/answer/FollowUpComponent";
-import DataStreamRenderer from "@/components/answer/NewsList";
+
 // 2. Set up types
 interface SearchResult {
   favicon: string;
@@ -74,6 +75,7 @@ interface finalResults {
 }
 export default function Page() {
   const [isInputPage, setIsInputPage] = useState(true);
+  const { toast } = useToast();
 
   // 3. Set up action that will be used to stream all the messages
   const { myAction } = useActions<typeof AI>();
@@ -219,6 +221,21 @@ export default function Page() {
       console.error("Error streaming data for user message:", error);
     }
   };
+  const [count, setCount] = useState(1);
+  function showMore(message:any) {
+    const {content, numResults} = message
+    const newLlmResponse = llmResponseEnd ? JSON.parse(content): []
+    if (newLlmResponse.length) {
+      if (count * numResults < newLlmResponse.length) {
+        setCount((count) => count + 1);
+      } else {
+        toast({
+          title: "All data has been loaded and completed",
+          description: "",
+        });
+      }
+    }
+  }
   return (
     <div>
       {messages.length > 0 && (
@@ -235,18 +252,15 @@ export default function Page() {
                 {message.type === "userMessage" && (
                   <UserMessageComponent message={message.userMessage} />
                 )}
-                <LLMResponseComponent
-                  llmResponse={message.content}
-                  currentLlmResponse={currentLlmResponse}
-                  llmResponseEnd={llmResponseEnd}
-                  index={index}
-                  key={`llm-response-${index}`}
-                />
-                <DataStreamRenderer llmResponseString={llmResponseString} />
                 {message.finalResults && (
                   <div className="flex flex-col">
-                    <h2>Showing {message.numResults} Results</h2>{" "}
-                    {/* 显示结果数量 */}
+                    <div className="flex justify-between mt-2">
+                       {/* 显示结果数量 */}
+                      <h2>Showing {message.numResults} Results</h2>
+                      <Button onClick={() => showMore(message)}>
+                        View more
+                      </Button>
+                    </div>
                     <ul>
                       {message.finalResults.map((result, index) => (
                         <li key={index} className="mb-2">
@@ -271,6 +285,14 @@ export default function Page() {
                     </ul>
                   </div>
                 )}
+                <LLMResponseComponent
+                  llmResponse={message.content}
+                  currentLlmResponse={currentLlmResponse}
+                  llmResponseEnd={llmResponseEnd}
+                  numCount = {count*3}
+                  index={index}
+                  key={`llm-response-${index}`}
+                />                
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
                 <p>Execution Time: {message.executionTime}</p>

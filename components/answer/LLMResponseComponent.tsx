@@ -1,3 +1,4 @@
+
 // 1. Define the 'LLMResponseComponentProps' interface with properties for 'llmResponse', 'currentLlmResponse', and 'index'
 interface LLMResponseComponentProps {
   llmResponse: string;
@@ -75,9 +76,10 @@ console.log("newLlmResponse", newLlmResponse);
           </div>
           <div className="dark:text-gray-300 text-gray-800">
             <Markdown>{llmResponse}</Markdown>
-            {llmResponseEnd && newLlmResponse.map((item: any) => {
-              return <div key={item.title}>{item.title}</div>;
-            })}
+            {llmResponseEnd && <ResultsListComponent
+                searchResults={newLlmResponse} //全部的数据
+                count={numCount}
+            />}
         
             {/* {newLlmResponse.map((item: any) => {
               return <div key={item.title}>{item.title}</div>;
