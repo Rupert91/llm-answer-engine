@@ -44,6 +44,7 @@ interface Message {
   searchTime: any;
   chatTime: any;
   executionTime: string;
+  filteredQuery:string;
 }
 interface StreamMessage {
   searchResults?: any;
@@ -59,6 +60,7 @@ interface StreamMessage {
   searchTime: any;
   chatTime: any;
   executionTime: string;
+  filteredQuery:string;
 }
 interface Image {
   link: string;
@@ -209,6 +211,9 @@ export default function Page() {
             if (typedMessage.executionTime) {
               currentMessage.executionTime = typedMessage.executionTime;
             }
+            if (typedMessage.filteredQuery) {
+              currentMessage.filteredQuery = typedMessage.filteredQuery;
+            }
           }
           return messagesCopy;
         });
@@ -294,6 +299,7 @@ export default function Page() {
                 <p>Parse Query Time: {message.parseQueryTime}</p>
                 <p>Search Time: {message.searchTime}</p>
                 <p>Chat Time: {message.chatTime}</p>
+                <p>FilteredQuery:{message.filteredQuery}</p>
               </div>
             </div>
           ))}

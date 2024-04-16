@@ -468,6 +468,7 @@ async function myAction(userMessage: string): Promise<any> {
     const filteredQuery = { topic, mediaType };   
 
     streamable.update({ 'numResults': numResults }); 
+    streamable.update({'filteredQuery':filteredQuery});
 
     const startTimeFetchData = Date.now();
     const [images, sources, videos] = await Promise.all([
