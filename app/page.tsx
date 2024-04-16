@@ -253,6 +253,17 @@ export default function Page() {
                 {message.type === "userMessage" && (
                   <UserMessageComponent message={message.userMessage} />
                 )}
+                {message.finalResults && (
+                  <div className="flex flex-col">
+                    <div className="flex justify-between mt-2">
+                       {/* 显示结果数量 */}
+                      <h2>Showing {message.numResults} Results</h2>
+                      <Button onClick={() => showMore(message)}>
+                        View more
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <LLMResponseComponent
                   llmResponse={message.content}
                   currentLlmResponse={currentLlmResponse}
