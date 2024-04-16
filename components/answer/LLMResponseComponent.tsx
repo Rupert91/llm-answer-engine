@@ -9,8 +9,6 @@ interface LLMResponseComponentProps {
   }
   
   // 2. Import the 'Markdown' component from 'react-markdown'
-  import Markdown from "react-markdown";
-  import NewsList from "./NewsList";
   import ResultsListComponent from "./ResultsListComponent";
   
   // 3. Define the 'StreamingComponent' functional component that renders the 'currentLlmResponse'

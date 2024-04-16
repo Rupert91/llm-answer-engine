@@ -244,47 +244,14 @@ export default function Page() {
           {messages.map((message, index) => (
             <div key={`message-${index}`} className="flex flex-col md:flex-row">
               <div className="w-full md:w-3/4 md:pr-2">
-                {message.searchResults && (
+                {/* {message.searchResults && (
                   <SearchResultsComponent
                     key={`searchResults-${index}`}
                     searchResults={message.searchResults}
                   />
-                )}
+                )} */}
                 {message.type === "userMessage" && (
                   <UserMessageComponent message={message.userMessage} />
-                )}
-                {message.finalResults && (
-                  <div className="flex flex-col">
-                    <div className="flex justify-between mt-2">
-                       {/* 显示结果数量 */}
-                      <h2>Showing {message.numResults} Results</h2>
-                      <Button onClick={() => showMore(message)}>
-                        View more
-                      </Button>
-                    </div>
-                    <ul>
-                      {message.finalResults.map((result, index) => (
-                        <li key={index} className="mb-2">
-                          <h4>{result.title}</h4> {/* 假设每个结果有标题 */}
-                          <p>{result.snippet}</p> {/* 显示结果摘要 */}
-                          <a
-                            href={result.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Read More
-                          </a>{" "}
-                          {/* 链接到更多内容 */}
-                          <button
-                            onClick={() => handleFollowUpClick(result.link)}
-                          >
-                            Follow Up
-                          </button>{" "}
-                          {/* 处理点击事件 */}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
                 )}
                 <LLMResponseComponent
                   llmResponse={message.content}
