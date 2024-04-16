@@ -78,7 +78,6 @@ interface LLMResponseComponentProps {
               <img src="./groq.png" alt="groq logo" className="w-6 h-6" />
             </div>
             <div className="dark:text-gray-300 text-gray-800">
-              <Markdown>{llmResponse}</Markdown>
               {llmResponseEnd && <ResultsListComponent
                   searchResults={newLlmResponse} //全部的数据
                   count={numCount}
