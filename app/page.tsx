@@ -14,14 +14,15 @@ import {
 import { IconArrowElbow } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Toaster, toast } from 'sonner'
 // Custom components
 import SearchResultsComponent from "@/components/answer/SearchResultsComponent";
 import UserMessageComponent from "@/components/answer/UserMessageComponent";
 import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
 import ImagesComponent from "@/components/answer/ImagesComponent";
 import VideosComponent from "@/components/answer/VideosComponent";
-import FollowUpComponent from "@/components/answer/FollowUpComponent";
-
+// import FollowUpComponent from "@/components/answer/FollowUpComponent";
+import ProgressSteps from "@/components/answer/ProgressSteps";
 // 2. Set up types
 interface SearchResult {
   favicon: string;
@@ -75,7 +76,7 @@ interface finalResults {
 }
 export default function Page() {
   const [isInputPage, setIsInputPage] = useState(true);
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   // 3. Set up action that will be used to stream all the messages
   const { myAction } = useActions<typeof AI>();
@@ -89,6 +90,9 @@ export default function Page() {
   const [currentLlmResponse, setCurrentLlmResponse] = useState("");
   const [llmResponseString, setLlmResponseString] = useState<string>("");
   const [llmResponseEnd, setLlmResponseEnd] = useState<boolean>(false);
+  const [modelAnalysisTime, setModelAnalysisTime] = useState(null);
+  const [externalSearchTime, setExternalSearchTime] = useState(null);
+  const [chatTime, setChatTime] = useState(null);
 
   // 7. Set up handler for when the user clicks on the follow up button
   const handleFollowUpClick = useCallback(async (question: string) => {
@@ -230,10 +234,7 @@ export default function Page() {
       if (count * numResults < newLlmResponse.length) {
         setCount((count) => count + 1);
       } else {
-        toast({
-          title: "All data has been loaded and completed",
-          description: "",
-        });
+        toast.success('All data has been loaded and completed');
       }
     }
   }
@@ -290,6 +291,11 @@ export default function Page() {
                     images={message.images}
                   />
                 )}
+                                  <ProgressSteps
+                    modelAnalysisTime= {message.parseQueryTime}
+                    externalSearchTime={message.searchTime}
+                    chatTime={message.chatTime}
+                  />
                 <p>Execution Time: {message.executionTime}</p>
                 <p>Parse Query Time: {message.parseQueryTime}</p>
                 <p>Search Time: {message.searchTime}</p>
